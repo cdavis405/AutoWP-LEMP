@@ -271,42 +271,20 @@ chmod 600 $WEB_ROOT/wp-config.php
 # Copy NGINX configuration
 log_info "Configuring NGINX..."
 cat > /etc/nginx/sites-available/${DOMAIN} <<EOF
-# HTTP - redirect to HTTPS
+# HTTP - Serves site and allows Certbot validation
 server {
     listen 80;
     listen [::]:80;
     server_name ${DOMAIN} www.${DOMAIN};
     
-    # Redirect to HTTPS
-    return 301 https://\$server_name\$request_uri;
-}
-
-# HTTPS
-server {
-    listen 443 ssl http2;
-    listen [::]:443 ssl http2;
-    server_name ${DOMAIN} www.${DOMAIN};
-    
     root ${WEB_ROOT};
     index index.php index.html index.htm;
     
-    # SSL certificates (will be configured by Certbot)
-    ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
-    
-    # SSL configuration
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_prefer_server_ciphers on;
-    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
-    ssl_session_cache shared:SSL:10m;
-    ssl_session_timeout 10m;
-    
-    # Security headers
+    # Security headers (non-SSL)
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
     
     # Logging
     access_log /var/log/nginx/${DOMAIN}_access.log;
@@ -445,14 +423,27 @@ log_info "========================================="
 log_info "Provisioning complete!"
 log_info "========================================="
 log_info ""
+log_info "IMPORTANT: Site is currently running on HTTP only."
+log_info ""
 log_info "Next steps:"
-log_info "1. Configure DNS to point to this server's IP"
-log_info "2. Run: sudo certbot --nginx -d ${DOMAIN} -d www.${DOMAIN}"
-log_info "3. Complete WordPress installation at: https://${DOMAIN}"
-log_info "4. Credentials saved to: $CREDENTIALS_FILE"
+log_info "1. Ensure DNS is configured:"
+log_info "   - ${DOMAIN} points to this server's IP"
+log_info "   - www.${DOMAIN} points to this server's IP"
 log_info ""
-log_info "To install WordPress:"
-log_info "  cd $WEB_ROOT"
-log_info "  sudo wp core install --url=https://${DOMAIN} --title='RetaGuide' --admin_user=${WP_ADMIN_USER} --admin_password='${WP_ADMIN_PASSWORD}' --admin_email=${WP_ADMIN_EMAIL} --allow-root"
+log_info "2. Set up SSL with Certbot:"
+log_info "   sudo certbot --nginx -d ${DOMAIN} -d www.${DOMAIN}"
+log_info "   (Certbot will automatically update NGINX config for HTTPS)"
 log_info ""
-log_warn "Remember to delete $CREDENTIALS_FILE after saving credentials!"
+log_info "3. Access your site:"
+log_info "   - Before SSL: http://${DOMAIN}"
+log_info "   - After SSL: https://${DOMAIN}"
+log_info ""
+log_info "4. Install WordPress:"
+log_info "   cd $WEB_ROOT"
+log_info "   # Use http:// if SSL not configured yet, https:// after SSL"
+log_info "   sudo wp core install --url=http://${DOMAIN} --title='RetaGuide' --admin_user=${WP_ADMIN_USER} --admin_password='${WP_ADMIN_PASSWORD}' --admin_email=${WP_ADMIN_EMAIL} --allow-root"
+log_info ""
+log_info "5. Credentials saved to: $CREDENTIALS_FILE"
+log_warn "   Remember to delete this file after saving credentials!"
+log_info ""
+log_info "Site is now accessible at: http://${DOMAIN}"
