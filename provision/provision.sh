@@ -400,11 +400,6 @@ server {
         fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include fastcgi_params;
-        
-        # FastCGI cache
-        fastcgi_cache_bypass \$skip_cache;
-        fastcgi_no_cache \$skip_cache;
-        fastcgi_cache_valid 200 60m;
     }
     
     # Deny access to PHP files in uploads
@@ -476,11 +471,6 @@ server {
         fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include fastcgi_params;
-        
-        # FastCGI cache
-        fastcgi_cache_bypass \$skip_cache;
-        fastcgi_no_cache \$skip_cache;
-        fastcgi_cache_valid 200 60m;
     }
     
     # Deny access to PHP files in uploads
