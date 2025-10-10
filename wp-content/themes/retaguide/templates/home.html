@@ -1,0 +1,71 @@
+<!-- wp:template-part {"slug":"header","tagName":"header"} /-->
+
+<!-- wp:group {"tagName":"main","style":{"spacing":{"padding":{"top":"0","right":"0","bottom":"0","left":"0"}}}} -->
+<main class="wp-block-group" style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0"><!-- wp:cover {"url":"https://images.unsplash.com/photo-1582719478250-c89cae4dc85b","dimRatio":30,"isDark":false,"style":{"color":{"duotone":["#E6F2FF","#2B2B2B"]}},"minHeight":440} -->
+<div class="wp-block-cover" style="min-height:440px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim"></span><img class="wp-block-cover__image-background" alt="" src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b" data-object-fit="cover"/><div class="wp-block-cover__inner-container"><!-- wp:heading {"fontSize":"xxl"} -->
+<h2 class="wp-block-heading has-xxl-font-size">Retatrutide Intelligence Hub</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"fontSize":"lg"} -->
+<p class="has-lg-font-size">Evidence, safety frameworks, and operational guidance for experimental peptide research teams.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:buttons -->
+<div class="wp-block-buttons"><!-- wp:button {"backgroundColor":"teal","textColor":"off-white"} -->
+<div class="wp-block-button"><a class="wp-block-button__link has-off-white-color has-teal-background-color has-text-color has-background wp-element-button" href="/guides/">Explore Guides</a></div>
+<!-- /wp:button -->
+
+<!-- wp:button {"backgroundColor":"off-white","textColor":"dark-green"} -->
+<div class="wp-block-button"><a class="wp-block-button__link has-dark-green-color has-off-white-background-color has-text-color has-background wp-element-button" href="/news/">Latest News</a></div>
+<!-- /wp:button --></div>
+<!-- /wp:buttons --></div></div>
+<!-- /wp:cover -->
+
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"2.5rem","right":"clamp(1rem,4vw,4rem)","bottom":"2.5rem","left":"clamp(1rem,4vw,4rem)"}}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group" style="padding-top:2.5rem;padding-right:clamp(1rem,4vw,4rem);padding-bottom:2.5rem;padding-left:clamp(1rem,4vw,4rem)"><!-- wp:heading {"textAlign":"left"} -->
+<h2 class="wp-block-heading">Featured Guides</h2>
+<!-- /wp:heading -->
+
+<!-- wp:query {"query":{"perPage":3,"postType":"guide","order":"desc","orderBy":"date"},"layout":{"type":"grid","columnCount":3}} -->
+<div class="wp-block-query"><!-- wp:post-template -->
+<!-- wp:group {"style":{"spacing":{"blockGap":"0.5rem"},"border":{"width":"1px","color":"#E6F2FF"},"padding":{"top":"1rem","right":"1rem","bottom":"1rem","left":"1rem"}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group" style="border-color:#E6F2FF;border-width:1px;padding-top:1rem;padding-right:1rem;padding-bottom:1rem;padding-left:1rem"><!-- wp:post-title {"isLink":true,"fontSize":"lg"} /-->
+
+<!-- wp:post-excerpt {"moreText":"Read guide"} /-->
+
+<!-- wp:post-terms {"term":"guide-level","fontSize":"sm"} /--></div>
+<!-- /wp:group -->
+<!-- /wp:post-template -->
+
+<!-- wp:query-no-results -->
+<!-- wp:paragraph -->
+<p>No guides yet. Add your first guide to showcase here.</p>
+<!-- /wp:paragraph -->
+<!-- /wp:query-no-results --></div>
+<!-- /wp:query --></div>
+<!-- /wp:group -->
+
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"2rem","right":"clamp(1rem,4vw,4rem)","bottom":"2rem","left":"clamp(1rem,4vw,4rem)"}},"color":{"background":"#E8F5E9"}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group has-background" style="background-color:#E8F5E9;padding-top:2rem;padding-right:clamp(1rem,4vw,4rem);padding-bottom:2rem;padding-left:clamp(1rem,4vw,4rem)"><!-- wp:heading -->
+<h2 class="wp-block-heading">Latest News</h2>
+<!-- /wp:heading -->
+
+<!-- wp:query {"query":{"perPage":4,"postType":"post","order":"desc","orderBy":"date"},"displayLayout":{"type":"list"}} -->
+<div class="wp-block-query"><!-- wp:post-template -->
+<!-- wp:group {"layout":{"type":"flex","justifyContent":"space-between","flexWrap":"wrap"}} -->
+<div class="wp-block-group"><!-- wp:post-title {"isLink":true} /-->
+
+<!-- wp:post-date {"fontSize":"sm"} /--></div>
+<!-- /wp:group -->
+<!-- /wp:post-template -->
+
+<!-- wp:query-no-results -->
+<!-- wp:paragraph -->
+<p>No news published yet.</p>
+<!-- /wp:paragraph -->
+<!-- /wp:query-no-results --></div>
+<!-- /wp:query --></div>
+<!-- /wp:group --></main>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->

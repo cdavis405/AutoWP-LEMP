@@ -1,0 +1,19 @@
+{
+  "name": "retaguide/site",
+  "description": "Infrastructure and custom theme for retaguide.com",
+  "type": "project",
+  "require": {},
+  "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+    "squizlabs/php_codesniffer": "^3.9",
+    "wp-coding-standards/wpcs": "^3.1"
+  },
+  "scripts": {
+    "lint:php": "phpcs"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  }
+}
