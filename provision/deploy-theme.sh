@@ -120,6 +120,15 @@ find $WEB_ROOT/wp-content/themes/retaguide -type d -exec chmod 755 {} \;
 find $WEB_ROOT/wp-content/themes/retaguide -type f -exec chmod 644 {} \;
 find $WEB_ROOT/wp-content/mu-plugins -type d -exec chmod 755 {} \;
 find $WEB_ROOT/wp-content/mu-plugins -type f -exec chmod 644 {} \;
+
+# Fix wp-config.php permissions (security)
+if [ -f "$WEB_ROOT/wp-config.php" ]; then
+    log_info "Securing wp-config.php..."
+    chmod 600 $WEB_ROOT/wp-config.php
+    chown www-data:www-data $WEB_ROOT/wp-config.php
+    log_info "✓ wp-config.php secured (600)"
+fi
+
 log_info "✓ Permissions set"
 
 # Check if WordPress is installed (has tables)
