@@ -113,6 +113,9 @@ sed -i 's/max_input_time = .*/max_input_time = 300/' $PHP_INI
 log_info "Installing MariaDB..."
 apt-get install -y mariadb-server mariadb-client
 
+# Default mysql command (will be adjusted after secure step)
+MYSQL_CMD="mysql"
+
 # Secure MariaDB installation
 log_info "Securing MariaDB..."
 # Use modern, compatible commands to set root password and remove anonymous/test DBs.
@@ -136,6 +139,8 @@ else
         log_info "Creating local admin user: $ADMIN_USER"
         mysql -e "CREATE USER IF NOT EXISTS '${ADMIN_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'; GRANT ALL PRIVILEGES ON *.* TO '${ADMIN_USER}'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;" 2>/dev/null || \
             log_warn "Could not create local admin user; you may need to configure root authentication manually."
+        # Use the created admin user for subsequent DB commands
+        MYSQL_CMD="mysql -u${ADMIN_USER} -p'${DB_PASSWORD}'"
     else
         # Try ALTER USER first (modern MySQL/MariaDB)
         mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';" 2>/dev/null
@@ -145,6 +150,10 @@ else
             mysql -e "UPDATE mysql.user SET authentication_string=PASSWORD('${DB_PASSWORD}') WHERE User='root' AND Host='localhost';" 2>/dev/null || \
                 mysql -e "UPDATE mysql.user SET Password=PASSWORD('${DB_PASSWORD}') WHERE User='root' AND Host='localhost';" 2>/dev/null || \
                 log_warn "Failed to set root password via fallback methods."
+        else
+            # If ALTER USER succeeded, use root with password for subsequent DB commands
+            MYSQL_CMD="mysql -uroot -p'${DB_PASSWORD}'"
+        fi
         fi
         # Remove anonymous users and test DB
         mysql -e "DELETE FROM mysql.user WHERE User='';" 2>/dev/null || true
@@ -158,10 +167,11 @@ set -e
 
 # Create WordPress database and user
 log_info "Creating WordPress database..."
-mysql -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
-mysql -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'"
-mysql -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost'"
-mysql -e "FLUSH PRIVILEGES"
+# Use the determined MySQL command (may include credentials)
+$MYSQL_CMD -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+$MYSQL_CMD -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'"
+$MYSQL_CMD -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost'"
+$MYSQL_CMD -e "FLUSH PRIVILEGES"
 
 # Install WP-CLI
 log_info "Installing WP-CLI..."
