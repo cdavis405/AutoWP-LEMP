@@ -342,11 +342,19 @@ if [ -f "/etc/nginx/sites-available/${DOMAIN}" ]; then
     else
         log_warn "NGINX config exists but no SSL detected - will overwrite with HTTP config"
         cat > /etc/nginx/sites-available/${DOMAIN} <<EOF
-# HTTP - Serves site and allows Certbot validation
+# HTTP - Redirect non-www to www
 server {
     listen 80;
     listen [::]:80;
-    server_name ${DOMAIN} www.${DOMAIN};
+    server_name ${DOMAIN};
+    return 301 http://www.${DOMAIN}\$request_uri;
+}
+
+# HTTP - Main site (www)
+server {
+    listen 80;
+    listen [::]:80;
+    server_name www.${DOMAIN};
     
     root ${WEB_ROOT};
     index index.php index.html index.htm;
@@ -413,11 +421,19 @@ EOF
 else
     log_info "Creating new NGINX configuration..."
     cat > /etc/nginx/sites-available/${DOMAIN} <<EOF
-# HTTP - Serves site and allows Certbot validation
+# HTTP - Redirect non-www to www
 server {
     listen 80;
     listen [::]:80;
-    server_name ${DOMAIN} www.${DOMAIN};
+    server_name ${DOMAIN};
+    return 301 http://www.${DOMAIN}\$request_uri;
+}
+
+# HTTP - Main site (www)
+server {
+    listen 80;
+    listen [::]:80;
+    server_name www.${DOMAIN};
     
     root ${WEB_ROOT};
     index index.php index.html index.htm;
@@ -575,18 +591,20 @@ log_info "   sudo certbot --nginx -d ${DOMAIN} -d www.${DOMAIN}"
 log_info "   (Certbot will automatically update NGINX config for HTTPS)"
 log_info ""
 log_info "3. Access your site:"
-log_info "   - Before SSL: http://${DOMAIN}"
-log_info "   - After SSL: https://${DOMAIN}"
+log_info "   - Before SSL: http://www.${DOMAIN}"
+log_info "   - After SSL: https://www.${DOMAIN}"
+log_info "   - Non-www URLs will redirect to www"
 log_info ""
 log_info "4. Install WordPress:"
 log_info "   cd $WEB_ROOT"
-log_info "   # Use http:// if SSL not configured yet, https:// after SSL"
-log_info "   sudo -u www-data wp core install --url=http://${DOMAIN} --title='RetaGuide' --admin_user=${WP_ADMIN_USER} --admin_password='${WP_ADMIN_PASSWORD}' --admin_email=${WP_ADMIN_EMAIL}"
+log_info "   # Use http://www if SSL not configured yet, https://www after SSL"
+log_info "   sudo -u www-data wp core install --url=http://www.${DOMAIN} --title='RetaGuide' --admin_user=${WP_ADMIN_USER} --admin_password='${WP_ADMIN_PASSWORD}' --admin_email=${WP_ADMIN_EMAIL}"
 log_info ""
 log_info "   Alternative (if you get permission errors):"
-log_info "   sudo wp core install --url=http://${DOMAIN} --title='RetaGuide' --admin_user=${WP_ADMIN_USER} --admin_password='${WP_ADMIN_PASSWORD}' --admin_email=${WP_ADMIN_EMAIL} --allow-root"
+log_info "   sudo wp core install --url=http://www.${DOMAIN} --title='RetaGuide' --admin_user=${WP_ADMIN_USER} --admin_password='${WP_ADMIN_PASSWORD}' --admin_email=${WP_ADMIN_EMAIL} --allow-root"
 log_info ""
 log_info "5. Credentials saved to: $CREDENTIALS_FILE"
 log_warn "   Remember to delete this file after saving credentials!"
 log_info ""
-log_info "Site is now accessible at: http://${DOMAIN}"
+log_info "Site is now accessible at: http://www.${DOMAIN}"
+log_info "(Non-www URLs will automatically redirect to www)"

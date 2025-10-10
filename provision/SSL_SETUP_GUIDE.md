@@ -92,19 +92,37 @@ curl -I https://retaguide.com
 HTTP/2 200
 ```
 
-### 6. Install WordPress
+### 6. Configure WWW Redirect (Post-Certbot)
+
+After Certbot runs, manually configure NGINX to redirect non-www to www:
+
+```bash
+sudo nano /etc/nginx/sites-available/retaguide.com
+```
+
+Update the server blocks to enforce www (see `WWW_ENFORCEMENT.md` for details):
+- Redirect HTTP non-www to HTTPS www
+- Redirect HTTPS non-www to HTTPS www
+- Serve site on HTTPS www
+
+Test and reload:
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### 7. Install WordPress
 
 ```bash
 cd /var/www/retaguide.com
 
-# After SSL is configured, use https://
-sudo wp core install \
-  --url=https://retaguide.com \
+# After SSL is configured, use https://www (enforces www subdomain)
+sudo -u www-data wp core install \
+  --url=https://www.retaguide.com \
   --title='RetaGuide' \
   --admin_user=admin \
   --admin_password='YourAdminPassword' \
-  --admin_email=admin@retaguide.com \
-  --allow-root
+  --admin_email=admin@retaguide.com
 ```
 
 ## NGINX Config Changes
@@ -240,7 +258,10 @@ But **Certbot is much easier** and handles auto-renewal!
 
 ✅ **Fixed**: NGINX config now starts with HTTP only  
 ✅ **Fixed**: No more certificate file errors during provisioning  
-✅ **Process**: HTTP first → Certbot → HTTPS  
+✅ **Process**: HTTP first → Certbot → Configure www redirect → Install WordPress with www  
 ✅ **Auto-renewal**: Certbot configures automatic certificate renewal  
+✅ **WWW Enforcement**: All traffic redirects to www.retaguide.com
 
 The two-step approach (provision → Certbot) is the standard way to deploy with Let's Encrypt.
+
+**See also**: `WWW_ENFORCEMENT.md` for complete www subdomain configuration details.
