@@ -2,6 +2,14 @@
 
 A comprehensive, production-ready WordPress site focused on experimental research peptide "Retatrutide," featuring custom News and Guides content types, integrated disclaimer system, and full DevOps deployment pipeline.
 
+## 🚀 Recent Updates
+
+- ✅ **IPv6 Support**: Fully configured NGINX and firewall for dual-stack (IPv4 + IPv6)
+- ✅ **WWW Enforcement**: All traffic redirects to www.retaguide.com (prevents session splitting)
+- ✅ **Idempotent Provisioning**: Safe to re-run provision.sh multiple times
+- ✅ **Ubuntu 22.04 Ready**: Handles unix_socket authentication automatically
+- ✅ **Comprehensive Documentation**: 12 detailed guides in `provision/` directory
+
 ## 🎯 Features
 
 ### Content Management
@@ -41,9 +49,10 @@ A comprehensive, production-ready WordPress site focused on experimental researc
 ## 📋 Requirements
 
 - Fresh Ubuntu 22.04 LTS (Azure VM or any VPS)
-- Domain name pointed to server IP
+- Domain name with DNS access (for A/AAAA records)
 - Root/sudo access
 - Git installed
+- (Optional) IPv6 connectivity for dual-stack support
 
 ## 🚀 Quick Start
 
@@ -89,21 +98,42 @@ This script will:
 
 ### 4. Configure DNS
 
-Point your domain's A record to your server's IP address:
+Point your domain's A and AAAA records to your server's IP addresses:
 
+**IPv4 (Required):**
 ```
 Type: A
 Name: @
-Value: YOUR_SERVER_IP
+Value: YOUR_SERVER_IPV4
 TTL: 3600
 
 Type: A
 Name: www
-Value: YOUR_SERVER_IP
+Value: YOUR_SERVER_IPV4
 TTL: 3600
 ```
 
+**IPv6 (Optional, if your VM has IPv6):**
+```
+Type: AAAA
+Name: @
+Value: YOUR_SERVER_IPV6
+TTL: 3600
+
+Type: AAAA
+Name: www
+Value: YOUR_SERVER_IPV6
+TTL: 3600
+```
+
+**Check your IPv6 address** (if applicable):
+```bash
+ip -6 addr show eth0 | grep inet6
+```
+
 Wait for DNS propagation (usually 5-30 minutes).
+
+**Note**: The site enforces the www subdomain. All traffic to `retaguide.com` will redirect to `www.retaguide.com`.
 
 ### 5. Install SSL Certificate
 
@@ -113,18 +143,32 @@ sudo certbot --nginx -d retaguide.com -d www.retaguide.com
 
 Follow the prompts. Certbot will automatically configure NGINX for HTTPS.
 
+**Important**: After Certbot completes, manually update the NGINX config to enforce www subdomain for HTTPS:
+
+```bash
+sudo nano /etc/nginx/sites-available/retaguide.com
+```
+
+Configure redirects so all traffic goes to `https://www.retaguide.com`. See `provision/WWW_ENFORCEMENT.md` for the complete HTTPS redirect configuration.
+
 ### 6. Complete WordPress Installation
 
 ```bash
 cd /var/www/retaguide.com
-sudo wp core install \
-  --url=https://retaguide.com \
+
+# Use www subdomain and run as www-data user (recommended)
+sudo -u www-data wp core install \
+  --url=https://www.retaguide.com \
   --title='RetaGuide' \
   --admin_user=YOUR_ADMIN_USER \
   --admin_password='YOUR_ADMIN_PASSWORD' \
-  --admin_email=YOUR_EMAIL \
-  --allow-root
+  --admin_email=YOUR_EMAIL
+
+# Alternative: Run as root (shows warning but works)
+# sudo wp core install --url=https://www.retaguide.com ... --allow-root
 ```
+
+**Note**: Use `https://www.retaguide.com` (with www) to enforce the www subdomain from the start.
 
 ### 7. Activate Theme
 
@@ -148,7 +192,32 @@ sudo wp rewrite flush --allow-root
 
 ### 8. Access Your Site
 
-Visit `https://retaguide.com/wp-admin` and log in with your admin credentials.
+Visit `https://www.retaguide.com/wp-admin` and log in with your admin credentials.
+
+## 📚 Provisioning Documentation
+
+The `provision/` directory contains comprehensive guides for setup and troubleshooting:
+
+- **`provision.sh`** - Main provisioning script (idempotent, safe to re-run)
+- **`set-permissions.sh`** - File permissions management
+- **`MARIADB_FIX.md`** - MariaDB authentication troubleshooting
+- **`UBUNTU_22_04_FIX.md`** - Ubuntu 22.04 specific issues (unix_socket)
+- **`PASSWORD_QUOTING_FIX.md`** - Database password quoting solutions
+- **`MARIADB_CORRUPTED_FIX.md`** - Database corruption recovery
+- **`SSL_SETUP_GUIDE.md`** - Complete SSL/TLS setup with Certbot
+- **`WWW_ENFORCEMENT.md`** - WWW subdomain configuration and redirects
+- **`IPV6_SETUP.md`** - IPv6 connectivity setup and verification
+- **`IDEMPOTENT_PROVISIONING.md`** - Safe re-run behavior documentation
+- **`TROUBLESHOOTING_ACCESS_DENIED.md`** - Database access issues
+- **`QUICK_REFERENCE.md`** - Quick command reference
+
+### Key Features
+
+- ✅ **Idempotent**: Safe to run multiple times, skips existing configurations
+- ✅ **IPv6 Ready**: Automatically configures NGINX and firewall for IPv6
+- ✅ **WWW Enforcement**: All traffic redirects to www.retaguide.com
+- ✅ **Ubuntu 22.04**: Handles unix_socket authentication automatically
+- ✅ **Modern Security**: Fail2ban, UFW, security headers, restricted permissions
 
 ## 🎨 Theme Configuration
 
@@ -320,11 +389,23 @@ sudo systemctl reload nginx
 retasite/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml              # CI/CD pipeline
+│       └── deploy.yml                      # CI/CD pipeline
 ├── provision/
-│   ├── provision.sh                # Server provisioning script
-│   ├── set-permissions.sh          # File permissions script
-│   └── .env.example                # Environment configuration template
+│   ├── provision.sh                        # Server provisioning script
+│   ├── set-permissions.sh                  # File permissions script
+│   ├── test-mariadb-setup.sh              # MariaDB setup testing (Docker)
+│   ├── test-mariadb-reset.sh              # Database reset script
+│   ├── .env.example                        # Environment configuration template
+│   ├── MARIADB_FIX.md                     # MariaDB authentication fixes
+│   ├── UBUNTU_22_04_FIX.md                # Ubuntu 22.04 specific issues
+│   ├── PASSWORD_QUOTING_FIX.md            # Database password quoting
+│   ├── MARIADB_CORRUPTED_FIX.md           # Database corruption recovery
+│   ├── SSL_SETUP_GUIDE.md                 # SSL/TLS setup guide
+│   ├── WWW_ENFORCEMENT.md                  # WWW subdomain configuration
+│   ├── IPV6_SETUP.md                      # IPv6 connectivity setup
+│   ├── IDEMPOTENT_PROVISIONING.md         # Re-run safety documentation
+│   ├── TROUBLESHOOTING_ACCESS_DENIED.md   # Database access issues
+│   └── QUICK_REFERENCE.md                 # Quick command reference
 ├── wp-content/
 │   ├── mu-plugins/
 │   │   └── retaguide-security.php  # Security MU plugin
@@ -370,25 +451,27 @@ retasite/
 - [x] XML-RPC disabled
 - [x] File editing disabled in admin
 - [x] Login attempt limiting (5 attempts, 15-minute lockout)
-- [x] Security headers (X-Frame-Options, CSP, etc.)
-- [x] Fail2ban protection
-- [x] UFW firewall (SSH, HTTP, HTTPS only)
+- [x] Security headers (X-Frame-Options, CSP, X-Content-Type-Options, etc.)
+- [x] Fail2ban protection (SSH, NGINX auth, bad bots)
+- [x] UFW firewall (SSH, HTTP, HTTPS only) - IPv4 and IPv6
 - [x] Proper file permissions (755/644)
 - [x] wp-config.php permissions (600)
-- [x] SSL/TLS encryption
+- [x] SSL/TLS encryption (TLSv1.2+, modern ciphers)
 - [x] User enumeration disabled
 - [x] Strong password requirements
 - [x] Regular automated backups
 - [x] Cookie consent notice (GDPR)
+- [x] WWW subdomain enforcement (prevents session splitting)
+- [x] Deny direct access to sensitive files (.htaccess, readme.html, etc.)
+- [x] PHP uploads directory protection
 
 ## 📊 Performance Optimizations
 
 - [x] Lazy loading images
 - [x] WebP image support
 - [x] Responsive srcset
-- [x] FastCGI caching
-- [x] Gzip compression
-- [x] Static asset caching (365 days)
+- [x] Gzip compression (text/plain, text/css, application/javascript, etc.)
+- [x] Static asset caching (365 days with immutable cache-control)
 - [x] Minimal JavaScript
 - [x] Deferred non-critical JS
 - [x] Preloaded critical CSS
@@ -396,6 +479,10 @@ retasite/
 - [x] Emoji scripts removed
 - [x] jQuery migrate removed
 - [x] Limited post revisions (5)
+- [x] IPv6 support (faster connectivity where available)
+- [x] HTTP/2 enabled (multiplexing, header compression)
+- [x] Client upload size limit (64MB)
+- [x] PHP 8.2 (modern, optimized performance)
 
 ## 🐛 Troubleshooting
 
