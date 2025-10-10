@@ -518,10 +518,24 @@ systemctl enable mariadb
 
 # Configure UFW firewall
 log_info "Configuring firewall..."
+
+# Ensure IPv6 is enabled in UFW
+if grep -q "^IPV6=no" /etc/default/ufw 2>/dev/null; then
+    log_info "Enabling IPv6 in UFW..."
+    sed -i 's/^IPV6=no/IPV6=yes/' /etc/default/ufw
+fi
+
 ufw --force enable
-ufw allow 22/tcp
-ufw allow 80/tcp
-ufw allow 443/tcp
+ufw allow 22/tcp comment 'SSH'
+ufw allow 80/tcp comment 'HTTP'
+ufw allow 443/tcp comment 'HTTPS'
+
+# Verify IPv6 is enabled
+if grep -q "^IPV6=yes" /etc/default/ufw; then
+    log_info "✓ UFW configured for both IPv4 and IPv6"
+else
+    log_warn "IPv6 may not be enabled in UFW - check /etc/default/ufw"
+fi
 
 # Configure fail2ban
 log_info "Configuring fail2ban..."
