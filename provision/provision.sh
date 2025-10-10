@@ -213,44 +213,74 @@ fi
 set -e
 
 # Create WordPress database and user
-log_info "Creating WordPress database..."
-# Use the determined MySQL command (may include credentials)
-eval "$MYSQL_CMD -e \"CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci\""
-eval "$MYSQL_CMD -e \"CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'\""
-eval "$MYSQL_CMD -e \"GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost'\""
-eval "$MYSQL_CMD -e \"FLUSH PRIVILEGES\""
+log_info "Checking WordPress database..."
+
+# Check if database already exists
+set +e
+DB_EXISTS=$(eval "$MYSQL_CMD -N -s -e \"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='${DB_NAME}';\"" 2>/dev/null)
+set -e
+
+if [ -n "$DB_EXISTS" ]; then
+    log_info "✓ Database '${DB_NAME}' already exists, skipping creation"
+else
+    log_info "Creating WordPress database..."
+    eval "$MYSQL_CMD -e \"CREATE DATABASE ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci\""
+    log_info "✓ Database created"
+fi
+
+# Check if user already exists
+set +e
+USER_EXISTS=$(eval "$MYSQL_CMD -N -s -e \"SELECT User FROM mysql.user WHERE User='${DB_USER}' AND Host='localhost';\"" 2>/dev/null)
+set -e
+
+if [ -n "$USER_EXISTS" ]; then
+    log_info "✓ User '${DB_USER}' already exists, skipping creation"
+else
+    log_info "Creating WordPress user..."
+    eval "$MYSQL_CMD -e \"CREATE USER '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'\""
+    eval "$MYSQL_CMD -e \"GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost'\""
+    eval "$MYSQL_CMD -e \"FLUSH PRIVILEGES\""
+    log_info "✓ User created and granted privileges"
+fi
 
 # Install WP-CLI
-log_info "Installing WP-CLI..."
-curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-chmod +x wp-cli.phar
-mv wp-cli.phar /usr/local/bin/wp
+if ! command -v wp &> /dev/null; then
+    log_info "Installing WP-CLI..."
+    curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    chmod +x wp-cli.phar
+    mv wp-cli.phar /usr/local/bin/wp
+    log_info "✓ WP-CLI installed"
+else
+    log_info "✓ WP-CLI already installed"
+fi
 
 # Create web directory
 WEB_ROOT="/var/www/${DOMAIN}"
-log_info "Creating web directory: $WEB_ROOT"
+log_info "Checking WordPress installation..."
 mkdir -p $WEB_ROOT
 cd $WEB_ROOT
 
-# Download WordPress
-log_info "Downloading WordPress..."
-wp core download --allow-root
-
-# Configure wp-config.php
-log_info "Configuring WordPress..."
-wp config create \
-    --dbname=$DB_NAME \
-    --dbuser=$DB_USER \
-    --dbpass=$DB_PASSWORD \
-    --dbhost=localhost \
-    --dbcharset=utf8mb4 \
-    --allow-root
-
-# Add security keys
-wp config shuffle-salts --allow-root
-
-# Add security constants
-cat >> wp-config.php <<'EOF'
+# Check if WordPress is already downloaded
+if [ -f "wp-load.php" ] && [ -f "wp-config.php" ]; then
+    log_info "✓ WordPress already installed at $WEB_ROOT"
+    log_info "Skipping WordPress download and configuration"
+elif [ -f "wp-load.php" ] && [ ! -f "wp-config.php" ]; then
+    log_info "✓ WordPress files exist but not configured"
+    log_info "Creating wp-config.php..."
+    
+    wp config create \
+        --dbname=$DB_NAME \
+        --dbuser=$DB_USER \
+        --dbpass=$DB_PASSWORD \
+        --dbhost=localhost \
+        --dbcharset=utf8mb4 \
+        --allow-root
+    
+    # Add security keys
+    wp config shuffle-salts --allow-root
+    
+    # Add security constants
+    cat >> wp-config.php <<'EOF'
 
 // Security configurations
 define('DISALLOW_FILE_EDIT', true);
@@ -260,17 +290,58 @@ define('WP_POST_REVISIONS', 5);
 define('AUTOSAVE_INTERVAL', 300);
 define('WP_AUTO_UPDATE_CORE', 'minor');
 EOF
+    log_info "✓ WordPress configured"
+else
+    log_info "Downloading WordPress..."
+    wp core download --allow-root
+    log_info "✓ WordPress downloaded"
+    
+    log_info "Configuring WordPress..."
+    wp config create \
+        --dbname=$DB_NAME \
+        --dbuser=$DB_USER \
+        --dbpass=$DB_PASSWORD \
+        --dbhost=localhost \
+        --dbcharset=utf8mb4 \
+        --allow-root
+    
+    # Add security keys
+    wp config shuffle-salts --allow-root
+    
+    # Add security constants
+    cat >> wp-config.php <<'EOF'
+
+// Security configurations
+define('DISALLOW_FILE_EDIT', true);
+define('DISALLOW_FILE_MODS', false);
+define('FORCE_SSL_ADMIN', true);
+define('WP_POST_REVISIONS', 5);
+define('AUTOSAVE_INTERVAL', 300);
+define('WP_AUTO_UPDATE_CORE', 'minor');
+EOF
+    log_info "✓ WordPress configured"
+fi
 
 # Set file permissions
 log_info "Setting file permissions..."
 chown -R www-data:www-data $WEB_ROOT
 find $WEB_ROOT -type d -exec chmod 755 {} \;
 find $WEB_ROOT -type f -exec chmod 644 {} \;
-chmod 600 $WEB_ROOT/wp-config.php
+if [ -f "$WEB_ROOT/wp-config.php" ]; then
+    chmod 600 $WEB_ROOT/wp-config.php
+fi
 
 # Copy NGINX configuration
 log_info "Configuring NGINX..."
-cat > /etc/nginx/sites-available/${DOMAIN} <<EOF
+
+# Check if NGINX config already exists and has SSL configured
+if [ -f "/etc/nginx/sites-available/${DOMAIN}" ]; then
+    if grep -q "ssl_certificate" "/etc/nginx/sites-available/${DOMAIN}"; then
+        log_info "✓ NGINX config exists with SSL - skipping HTTP-only config"
+        log_warn "To reconfigure NGINX, manually edit: /etc/nginx/sites-available/${DOMAIN}"
+    else
+        log_warn "NGINX config exists but no SSL detected - will overwrite with HTTP config"
+        cat > /etc/nginx/sites-available/${DOMAIN} <<EOF
 # HTTP - Serves site and allows Certbot validation
 server {
     listen 80;
@@ -342,12 +413,91 @@ server {
     }
 }
 EOF
+        log_info "✓ HTTP config created"
+    fi
+else
+    log_info "Creating new NGINX configuration..."
+    cat > /etc/nginx/sites-available/${DOMAIN} <<EOF
+# HTTP - Serves site and allows Certbot validation
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${DOMAIN} www.${DOMAIN};
+    
+    root ${WEB_ROOT};
+    index index.php index.html index.htm;
+    
+    # Security headers (non-SSL)
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    
+    # Logging
+    access_log /var/log/nginx/${DOMAIN}_access.log;
+    error_log /var/log/nginx/${DOMAIN}_error.log;
+    
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss application/javascript application/json;
+    
+    # Client upload size
+    client_max_body_size 64M;
+    
+    # Cache static files
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
+        expires 365d;
+        add_header Cache-Control "public, immutable";
+    }
+    
+    # Deny access to sensitive files
+    location ~ /\. {
+        deny all;
+    }
+    
+    location ~ /wp-config.php {
+        deny all;
+    }
+    
+    location ~ /readme.html {
+        deny all;
+    }
+    
+    # WordPress permalinks
+    location / {
+        try_files \$uri \$uri/ /index.php?\$args;
+    }
+    
+    # PHP-FPM configuration
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        include fastcgi_params;
+        
+        # FastCGI cache
+        fastcgi_cache_bypass \$skip_cache;
+        fastcgi_no_cache \$skip_cache;
+        fastcgi_cache_valid 200 60m;
+    }
+    
+    # Deny access to PHP files in uploads
+    location ~* /(?:uploads|files)/.*\.php$ {
+        deny all;
+    }
+}
+EOF
+    log_info "✓ NGINX config created"
+fi
 
 # Enable site
 ln -sf /etc/nginx/sites-available/${DOMAIN} /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 
 # Test NGINX configuration
+log_info "Testing NGINX configuration..."
 nginx -t
 
 # Restart services
