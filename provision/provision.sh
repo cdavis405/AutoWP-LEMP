@@ -358,6 +358,33 @@ EOF
     log_info "✓ WordPress configured"
 fi
 
+# Copy custom theme and MU plugins
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+
+log_info "Installing custom theme and plugins..."
+
+# Create mu-plugins directory if it doesn't exist
+mkdir -p $WEB_ROOT/wp-content/mu-plugins
+
+# Check if theme exists in repo
+if [ -d "$REPO_ROOT/wp-content/themes/retaguide" ]; then
+    log_info "Copying RetaGuide theme..."
+    cp -r "$REPO_ROOT/wp-content/themes/retaguide" $WEB_ROOT/wp-content/themes/
+    log_info "✓ Theme copied"
+else
+    log_warn "RetaGuide theme not found in repository at: $REPO_ROOT/wp-content/themes/retaguide"
+fi
+
+# Check if MU plugin exists in repo
+if [ -f "$REPO_ROOT/wp-content/mu-plugins/retaguide-security.php" ]; then
+    log_info "Copying MU security plugin..."
+    cp "$REPO_ROOT/wp-content/mu-plugins/retaguide-security.php" $WEB_ROOT/wp-content/mu-plugins/
+    log_info "✓ MU plugin copied"
+else
+    log_warn "MU security plugin not found in repository at: $REPO_ROOT/wp-content/mu-plugins/"
+fi
+
 # Set file permissions
 log_info "Setting file permissions..."
 chown -R www-data:www-data $WEB_ROOT
@@ -653,7 +680,12 @@ log_info ""
 log_info "   Alternative (if you get permission errors):"
 log_info "   sudo wp core install --url=http://www.${DOMAIN} --title='RetaGuide' --admin_user=${WP_ADMIN_USER} --admin_password='${WP_ADMIN_PASSWORD}' --admin_email=${WP_ADMIN_EMAIL} --allow-root"
 log_info ""
-log_info "5. Credentials saved to: $CREDENTIALS_FILE"
+log_info "5. Activate RetaGuide theme:"
+log_info "   cd $WEB_ROOT"
+log_info "   sudo -u www-data wp theme activate retaguide"
+log_info "   sudo -u www-data wp rewrite flush"
+log_info ""
+log_info "6. Credentials saved to: $CREDENTIALS_FILE"
 log_warn "   Remember to delete this file after saving credentials!"
 log_info ""
 log_info "Site is now accessible at: http://www.${DOMAIN}"
