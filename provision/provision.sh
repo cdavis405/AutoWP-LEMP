@@ -115,12 +115,46 @@ apt-get install -y mariadb-server mariadb-client
 
 # Secure MariaDB installation
 log_info "Securing MariaDB..."
-mysql -e "UPDATE mysql.user SET Password=PASSWORD('${DB_PASSWORD}') WHERE User='root'"
-mysql -e "DELETE FROM mysql.user WHERE User=''"
-mysql -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
-mysql -e "DROP DATABASE IF EXISTS test"
-mysql -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%'"
-mysql -e "FLUSH PRIVILEGES"
+# Use modern, compatible commands to set root password and remove anonymous/test DBs.
+# Some MariaDB installs use unix_socket for root; handle that safely.
+set +e
+MYSQL_OK=0
+mysql --version >/dev/null 2>&1 || MYSQL_OK=1
+if [ "$MYSQL_OK" -eq 1 ]; then
+    log_warn "mysql client not available; skipping DB secure steps"
+else
+    # Attempt to set root password using ALTER USER if available
+    log_info "Configuring root user authentication..."
+    mysql -e "SELECT 1" >/dev/null 2>&1 || true
+
+    # Try to detect if unix_socket auth is in use for root
+    HAS_UNIX_SOCKET=$(mysql -N -s -e "SELECT plugin FROM mysql.user WHERE User='root' LIMIT 1;" 2>/dev/null || echo "")
+    if echo "$HAS_UNIX_SOCKET" | grep -qi "socket\|unix"; then
+        log_info "Root uses unix_socket authentication; creating a passworded 'root'@'localhost' user may be restricted."
+        # Create a separate admin user with full privileges instead
+        ADMIN_USER="admin_${DB_USER}"
+        log_info "Creating local admin user: $ADMIN_USER"
+        mysql -e "CREATE USER IF NOT EXISTS '${ADMIN_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'; GRANT ALL PRIVILEGES ON *.* TO '${ADMIN_USER}'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;" 2>/dev/null || \
+            log_warn "Could not create local admin user; you may need to configure root authentication manually."
+    else
+        # Try ALTER USER first (modern MySQL/MariaDB)
+        mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';" 2>/dev/null
+        if [ $? -ne 0 ]; then
+            # Fallback to UPDATE for older systems, wrapped in a safe conditional
+            log_info "ALTER USER failed; attempting compatible fallback to set root password..."
+            mysql -e "UPDATE mysql.user SET authentication_string=PASSWORD('${DB_PASSWORD}') WHERE User='root' AND Host='localhost';" 2>/dev/null || \
+                mysql -e "UPDATE mysql.user SET Password=PASSWORD('${DB_PASSWORD}') WHERE User='root' AND Host='localhost';" 2>/dev/null || \
+                log_warn "Failed to set root password via fallback methods."
+        fi
+        # Remove anonymous users and test DB
+        mysql -e "DELETE FROM mysql.user WHERE User='';" 2>/dev/null || true
+        mysql -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost','127.0.0.1','::1');" 2>/dev/null || true
+        mysql -e "DROP DATABASE IF EXISTS test;" 2>/dev/null || true
+        mysql -e "DELETE FROM mysql.db WHERE Db='test' OR Db LIKE 'test\\_%';" 2>/dev/null || true
+        mysql -e "FLUSH PRIVILEGES;" 2>/dev/null || true
+    fi
+fi
+set -e
 
 # Create WordPress database and user
 log_info "Creating WordPress database..."
