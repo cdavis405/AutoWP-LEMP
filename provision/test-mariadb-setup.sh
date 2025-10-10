@@ -2,6 +2,11 @@
 ###############################################################################
 # Test script for MariaDB setup logic from provision.sh
 # Runs a temporary MariaDB container and tests the authentication setup
+#
+# NOTE: This is a DEVELOPMENT TESTING TOOL ONLY
+# - Requires Docker to be installed
+# - NOT needed for actual server provisioning
+# - Only use this for testing the SQL logic before deploying
 ###############################################################################
 
 set -e
@@ -22,6 +27,31 @@ log_error() {
 log_warn() {
     echo -e "${YELLOW}[TEST WARN]${NC} $1"
 }
+
+# Check if Docker is available
+if ! command -v docker &> /dev/null; then
+    log_error "Docker is not installed or not in PATH"
+    echo ""
+    echo "This test script requires Docker to run a temporary MariaDB container."
+    echo "Docker is NOT required for actual server provisioning with provision.sh"
+    echo ""
+    echo "To install Docker (optional, for testing only):"
+    echo "  curl -fsSL https://get.docker.com -o get-docker.sh"
+    echo "  sudo sh get-docker.sh"
+    echo "  sudo usermod -aG docker \$USER"
+    echo "  # Log out and back in for group changes to take effect"
+    echo ""
+    exit 1
+fi
+
+# Check if Docker daemon is running
+if ! docker info &> /dev/null; then
+    log_error "Docker daemon is not running"
+    echo ""
+    echo "Start Docker with: sudo systemctl start docker"
+    echo ""
+    exit 1
+fi
 
 # Test parameters
 DB_NAME="retaguide_wp"

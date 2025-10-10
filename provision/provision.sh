@@ -144,22 +144,51 @@ else
     else
         # Try ALTER USER first (modern MySQL/MariaDB)
         mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';" 2>/dev/null
-        if [ $? -ne 0 ]; then
+        ALTER_STATUS=$?
+        
+        if [ $ALTER_STATUS -ne 0 ]; then
             # Fallback to UPDATE for older systems, wrapped in a safe conditional
             log_info "ALTER USER failed; attempting compatible fallback to set root password..."
-            mysql -e "UPDATE mysql.user SET authentication_string=PASSWORD('${DB_PASSWORD}') WHERE User='root' AND Host='localhost';" 2>/dev/null || \
-                mysql -e "UPDATE mysql.user SET Password=PASSWORD('${DB_PASSWORD}') WHERE User='root' AND Host='localhost';" 2>/dev/null || \
-                log_warn "Failed to set root password via fallback methods."
+            mysql -e "UPDATE mysql.user SET authentication_string=PASSWORD('${DB_PASSWORD}') WHERE User='root' AND Host='localhost';" 2>/dev/null
+            UPDATE1_STATUS=$?
+            
+            if [ $UPDATE1_STATUS -ne 0 ]; then
+                mysql -e "UPDATE mysql.user SET Password=PASSWORD('${DB_PASSWORD}') WHERE User='root' AND Host='localhost';" 2>/dev/null
+                UPDATE2_STATUS=$?
+                
+                if [ $UPDATE2_STATUS -ne 0 ]; then
+                    log_warn "Failed to set root password via fallback methods."
+                    log_info "Root may already use passwordless authentication - will attempt to use current credentials"
+                    # Keep using mysql without password for now, will try to create admin user below
+                    mysql -e "CREATE USER IF NOT EXISTS 'admin_${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'; GRANT ALL PRIVILEGES ON *.* TO 'admin_${DB_USER}'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;" 2>/dev/null
+                    if [ $? -eq 0 ]; then
+                        log_info "Created admin user as fallback"
+                        MYSQL_CMD="mysql -uadmin_${DB_USER} -p'${DB_PASSWORD}'"
+                    else
+                        log_warn "Could not create admin user either - database creation may fail"
+                        # Keep default MYSQL_CMD="mysql" and hope for the best
+                    fi
+                else
+                    MYSQL_CMD="mysql -uroot -p'${DB_PASSWORD}'"
+                fi
+            else
+                MYSQL_CMD="mysql -uroot -p'${DB_PASSWORD}'"
+            fi
         else
             # If ALTER USER succeeded, use root with password for subsequent DB commands
             MYSQL_CMD="mysql -uroot -p'${DB_PASSWORD}'"
         fi
+        
+        # Flush privileges if we changed password
+        if [ "$MYSQL_CMD" != "mysql" ]; then
+            $MYSQL_CMD -e "FLUSH PRIVILEGES;" 2>/dev/null || true
+        fi
+        
         # Remove anonymous users and test DB
-        mysql -e "DELETE FROM mysql.user WHERE User='';" 2>/dev/null || true
-        mysql -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost','127.0.0.1','::1');" 2>/dev/null || true
-        mysql -e "DROP DATABASE IF EXISTS test;" 2>/dev/null || true
-        mysql -e "DELETE FROM mysql.db WHERE Db='test' OR Db LIKE 'test\\_%';" 2>/dev/null || true
-        mysql -e "FLUSH PRIVILEGES;" 2>/dev/null || true
+        $MYSQL_CMD -e "DELETE FROM mysql.user WHERE User='';" 2>/dev/null || true
+        $MYSQL_CMD -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost','127.0.0.1','::1');" 2>/dev/null || true
+        $MYSQL_CMD -e "DROP DATABASE IF EXISTS test;" 2>/dev/null || true
+        $MYSQL_CMD -e "DELETE FROM mysql.db WHERE Db='test' OR Db LIKE 'test\\_%';" 2>/dev/null || true
     fi
 fi
 set -e
