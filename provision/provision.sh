@@ -154,7 +154,6 @@ else
             # If ALTER USER succeeded, use root with password for subsequent DB commands
             MYSQL_CMD="mysql -uroot -p'${DB_PASSWORD}'"
         fi
-        fi
         # Remove anonymous users and test DB
         mysql -e "DELETE FROM mysql.user WHERE User='';" 2>/dev/null || true
         mysql -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost','127.0.0.1','::1');" 2>/dev/null || true

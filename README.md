@@ -440,6 +440,37 @@ mysql -u retaguide_user -p retaguide_wp
 sudo cat /var/www/retaguide.com/wp-config.php | grep DB_
 ```
 
+### MariaDB authentication issues during provisioning
+
+**Issue**: `ERROR 1356 (HY000): View 'mysql.user' references invalid table(s)`
+
+**Cause**: Modern MariaDB versions (10.4+) use different authentication methods and don't allow direct modification of the `mysql.user` view. Some installations use `unix_socket` authentication for root by default.
+
+**Solution**: The provisioning script automatically handles this by:
+1. Detecting the root authentication method
+2. Using `ALTER USER` for modern MariaDB versions
+3. Creating a separate admin user if unix_socket is detected
+4. Falling back to compatible UPDATE methods if needed
+
+**Manual fix** (if you need to set up authentication manually):
+```bash
+# Check current root authentication method
+sudo mysql -e "SELECT User,Host,plugin FROM mysql.user WHERE User='root';"
+
+# If root uses unix_socket, create an admin user instead:
+sudo mysql -e "CREATE USER IF NOT EXISTS 'admin_retaguide'@'localhost' IDENTIFIED BY 'YourPassword'; GRANT ALL PRIVILEGES ON *.* TO 'admin_retaguide'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+
+# If root uses mysql_native_password, change password with ALTER USER:
+sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'YourPassword'; FLUSH PRIVILEGES;"
+```
+
+**Testing**: You can test the MariaDB setup logic before running provisioning:
+```bash
+cd provision
+./test-mariadb-setup.sh
+```
+This runs a Docker container with MariaDB and tests all authentication scenarios.
+
 ### Permission issues
 ```bash
 cd /workspaces/Retasite/provision
