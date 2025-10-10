@@ -1,0 +1,88 @@
+<!-- wp:template-part {"slug":"header","tagName":"header"} /-->
+
+<!-- wp:group {"tagName":"main","align":"full","layout":{"type":"constrained"}} -->
+<main id="main-content" class="wp-block-group alignfull">
+    <!-- wp:cover {"url":"https://placehold.co/1920x600","dimRatio":50,"overlayColor":"dark-gray","minHeight":500,"minHeightUnit":"px","align":"full"} -->
+    <div class="wp-block-cover alignfull" style="min-height:500px"><span aria-hidden="true" class="wp-block-cover__background has-dark-gray-background-color has-background-dim"></span><div class="wp-block-cover__inner-container">
+        <!-- wp:heading {"textAlign":"center","level":1,"style":{"typography":{"fontSize":"4rem"}},"textColor":"white"} -->
+        <h1 class="has-text-align-center has-white-color has-text-color" style="font-size:4rem">RetaGuide</h1>
+        <!-- /wp:heading -->
+        
+        <!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"1.5rem"}},"textColor":"light-blue"} -->
+        <p class="has-text-align-center has-light-blue-color has-text-color" style="font-size:1.5rem">Your comprehensive resource for Retatrutide research</p>
+        <!-- /wp:paragraph -->
+    </div></div>
+    <!-- /wp:cover -->
+    
+    <!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|70","bottom":"var:preset|spacing|70"}}},"layout":{"type":"constrained"}} -->
+    <div class="wp-block-group" style="padding-top:var(--wp--preset--spacing--70);padding-bottom:var(--wp--preset--spacing--70)">
+        <!-- wp:columns -->
+        <div class="wp-block-columns">
+            <!-- wp:column -->
+            <div class="wp-block-column">
+                <!-- wp:heading {"level":2,"textColor":"primary-blue"} -->
+                <h2 class="has-primary-blue-color has-text-color">Latest News</h2>
+                <!-- /wp:heading -->
+                
+                <!-- wp:paragraph -->
+                <p>Stay updated with the latest research findings and developments.</p>
+                <!-- /wp:paragraph -->
+                
+                <!-- wp:latest-posts {"postsToShow":3,"displayPostDate":true,"displayFeaturedImage":true,"featuredImageSizeSlug":"medium"} /-->
+                
+                <!-- wp:buttons -->
+                <div class="wp-block-buttons">
+                    <!-- wp:button -->
+                    <div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/news/">View All News</a></div>
+                    <!-- /wp:button -->
+                </div>
+                <!-- /wp:buttons -->
+            </div>
+            <!-- /wp:column -->
+            
+            <!-- wp:column -->
+            <div class="wp-block-column">
+                <!-- wp:heading {"level":2,"textColor":"dark-green"} -->
+                <h2 class="has-dark-green-color has-text-color">Essential Guides</h2>
+                <!-- /wp:heading -->
+                
+                <!-- wp:paragraph -->
+                <p>Comprehensive guides for researchers and healthcare professionals.</p>
+                <!-- /wp:paragraph -->
+                
+                <!-- wp:query {"queryId":2,"query":{"perPage":3,"pages":0,"offset":0,"postType":"guide","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":false}} -->
+                <div class="wp-block-query">
+                    <!-- wp:post-template -->
+                        <!-- wp:post-title {"isLink":true,"fontSize":"large"} /-->
+                        <!-- wp:post-excerpt {"excerptLength":15} /-->
+                    <!-- /wp:post-template -->
+                </div>
+                <!-- /wp:query -->
+                
+                <!-- wp:buttons -->
+                <div class="wp-block-buttons">
+                    <!-- wp:button {"backgroundColor":"dark-green"} -->
+                    <div class="wp-block-button"><a class="wp-block-button__link has-dark-green-background-color has-background wp-element-button" href="/guides/">View All Guides</a></div>
+                    <!-- /wp:button -->
+                </div>
+                <!-- /wp:buttons -->
+            </div>
+            <!-- /wp:column -->
+        </div>
+        <!-- /wp:columns -->
+    </div>
+    <!-- /wp:group -->
+    
+    <!-- wp:group {"backgroundColor":"light-blue","style":{"spacing":{"padding":{"top":"var:preset|spacing|70","bottom":"var:preset|spacing|70"}}},"layout":{"type":"constrained"}} -->
+    <div class="wp-block-group has-light-blue-background-color has-background" style="padding-top:var(--wp--preset--spacing--70);padding-bottom:var(--wp--preset--spacing--70)">
+        <!-- wp:heading {"textAlign":"center"} -->
+        <h2 class="has-text-align-center">Browse by Category</h2>
+        <!-- /wp:heading -->
+        
+        <!-- wp:categories {"showPostCounts":true,"className":"is-style-default"} /-->
+    </div>
+    <!-- /wp:group -->
+</main>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->

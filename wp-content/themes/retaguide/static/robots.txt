@@ -1,0 +1,27 @@
+# Robots.txt for RetaGuide
+# https://retaguide.com/robots.txt
+
+User-agent: *
+Allow: /
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Disallow: /wp-content/plugins/
+Disallow: /wp-content/themes/
+Disallow: /wp-content/cache/
+Disallow: /wp-login.php
+Disallow: /wp-signup.php
+Disallow: /xmlrpc.php
+Disallow: /trackback/
+Disallow: */feed/
+Disallow: */comments/
+Disallow: *?replytocom=
+Disallow: *?s=
+Disallow: *?attachment_id=
+
+# Allow specific directories
+Allow: /wp-content/uploads/
+Allow: /wp-includes/js/
+Allow: /wp-includes/css/
+
+# Sitemap
+Sitemap: https://retaguide.com/wp-sitemap.xml
