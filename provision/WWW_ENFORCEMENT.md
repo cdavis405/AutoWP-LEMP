@@ -40,7 +40,25 @@ sudo certbot --nginx -d retaguide.com -d www.retaguide.com
 
 **IMPORTANT**: After Certbot runs, you need to manually update the NGINX config to redirect non-www HTTPS to www HTTPS.
 
-#### Post-Certbot Manual Configuration
+#### Post-Certbot Configuration
+
+**Option 1: Automated (Recommended)**
+
+Use the provided script to automatically configure NGINX:
+
+```bash
+cd ~/retasite/provision
+sudo ./configure-nginx-https-www.sh
+```
+
+This script will:
+- ✓ Backup your existing NGINX config
+- ✓ Create proper HTTPS + WWW redirect configuration
+- ✓ Test the configuration
+- ✓ Reload NGINX
+- ✓ Test all redirect scenarios
+
+**Option 2: Manual Configuration**
 
 Edit the NGINX config:
 ```bash

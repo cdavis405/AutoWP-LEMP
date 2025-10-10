@@ -143,13 +143,20 @@ sudo certbot --nginx -d retaguide.com -d www.retaguide.com
 
 Follow the prompts. Certbot will automatically configure NGINX for HTTPS.
 
-**Important**: After Certbot completes, manually update the NGINX config to enforce www subdomain for HTTPS:
+**Important**: After Certbot completes, configure NGINX to enforce www subdomain for HTTPS:
 
+**Option 1: Automated (Recommended)**
+```bash
+cd ~/retasite/provision
+sudo ./configure-nginx-https-www.sh
+```
+
+**Option 2: Manual**
 ```bash
 sudo nano /etc/nginx/sites-available/retaguide.com
 ```
 
-Configure redirects so all traffic goes to `https://www.retaguide.com`. See `provision/WWW_ENFORCEMENT.md` for the complete HTTPS redirect configuration.
+See `provision/WWW_ENFORCEMENT.md` for the complete HTTPS redirect configuration.
 
 ### 6. Complete WordPress Installation
 
@@ -392,6 +399,7 @@ retasite/
 │       └── deploy.yml                      # CI/CD pipeline
 ├── provision/
 │   ├── provision.sh                        # Server provisioning script
+│   ├── configure-nginx-https-www.sh       # Post-SSL NGINX configuration (automated)
 │   ├── set-permissions.sh                  # File permissions script
 │   ├── test-mariadb-setup.sh              # MariaDB setup testing (Docker)
 │   ├── test-mariadb-reset.sh              # Database reset script
