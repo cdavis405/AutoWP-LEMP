@@ -114,7 +114,18 @@ log_info "Installing MariaDB..."
 apt-get install -y mariadb-server mariadb-client
 
 # Default mysql command (will be adjusted after secure step)
+# On Ubuntu, root may require sudo for unix_socket authentication
 MYSQL_CMD="mysql"
+MYSQL_ROOT_CMD="mysql"
+
+# Check if we're running as root
+if [ "$EUID" -eq 0 ]; then
+    # Running as root, can use mysql directly (unix_socket will work)
+    MYSQL_ROOT_CMD="mysql"
+else
+    # Not root, need sudo
+    MYSQL_ROOT_CMD="sudo mysql"
+fi
 
 # Secure MariaDB installation
 log_info "Securing MariaDB..."
@@ -128,54 +139,62 @@ if [ "$MYSQL_OK" -eq 1 ]; then
 else
     # Attempt to set root password using ALTER USER if available
     log_info "Configuring root user authentication..."
-    mysql -e "SELECT 1" >/dev/null 2>&1 || true
+    $MYSQL_ROOT_CMD -e "SELECT 1" >/dev/null 2>&1 || true
 
     # Try to detect if unix_socket auth is in use for root
-    HAS_UNIX_SOCKET=$(mysql -N -s -e "SELECT plugin FROM mysql.user WHERE User='root' LIMIT 1;" 2>/dev/null || echo "")
+    HAS_UNIX_SOCKET=$($MYSQL_ROOT_CMD -N -s -e "SELECT plugin FROM mysql.user WHERE User='root' LIMIT 1;" 2>/dev/null || echo "")
     if echo "$HAS_UNIX_SOCKET" | grep -qi "socket\|unix"; then
-        log_info "Root uses unix_socket authentication; creating a passworded 'root'@'localhost' user may be restricted."
+        log_info "Root uses unix_socket authentication; creating a passworded admin user."
         # Create a separate admin user with full privileges instead
         ADMIN_USER="admin_${DB_USER}"
         log_info "Creating local admin user: $ADMIN_USER"
-        mysql -e "CREATE USER IF NOT EXISTS '${ADMIN_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'; GRANT ALL PRIVILEGES ON *.* TO '${ADMIN_USER}'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;" 2>/dev/null || \
-            log_warn "Could not create local admin user; you may need to configure root authentication manually."
-        # Use the created admin user for subsequent DB commands
-        MYSQL_CMD="mysql -u${ADMIN_USER} -p'${DB_PASSWORD}'"
+        $MYSQL_ROOT_CMD -e "CREATE USER IF NOT EXISTS '${ADMIN_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'; GRANT ALL PRIVILEGES ON *.* TO '${ADMIN_USER}'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;" 2>/dev/null
+        if [ $? -eq 0 ]; then
+            log_info "✓ Created admin user successfully"
+            MYSQL_CMD="mysql -u${ADMIN_USER} -p'${DB_PASSWORD}'"
+        else
+            log_warn "Could not create admin user; you may need to configure authentication manually."
+            # Fall back to using root with unix_socket
+            MYSQL_CMD="$MYSQL_ROOT_CMD"
+        fi
     else
         # Try ALTER USER first (modern MySQL/MariaDB)
-        mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';" 2>/dev/null
+        $MYSQL_ROOT_CMD -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';" 2>/dev/null
         ALTER_STATUS=$?
         
         if [ $ALTER_STATUS -ne 0 ]; then
             # Fallback to UPDATE for older systems, wrapped in a safe conditional
             log_info "ALTER USER failed; attempting compatible fallback to set root password..."
-            mysql -e "UPDATE mysql.user SET authentication_string=PASSWORD('${DB_PASSWORD}') WHERE User='root' AND Host='localhost';" 2>/dev/null
+            $MYSQL_ROOT_CMD -e "UPDATE mysql.user SET authentication_string=PASSWORD('${DB_PASSWORD}') WHERE User='root' AND Host='localhost';" 2>/dev/null
             UPDATE1_STATUS=$?
             
             if [ $UPDATE1_STATUS -ne 0 ]; then
-                mysql -e "UPDATE mysql.user SET Password=PASSWORD('${DB_PASSWORD}') WHERE User='root' AND Host='localhost';" 2>/dev/null
+                $MYSQL_ROOT_CMD -e "UPDATE mysql.user SET Password=PASSWORD('${DB_PASSWORD}') WHERE User='root' AND Host='localhost';" 2>/dev/null
                 UPDATE2_STATUS=$?
                 
                 if [ $UPDATE2_STATUS -ne 0 ]; then
                     log_warn "Failed to set root password via fallback methods."
-                    log_info "Root may already use passwordless authentication - will attempt to use current credentials"
-                    # Keep using mysql without password for now, will try to create admin user below
-                    mysql -e "CREATE USER IF NOT EXISTS 'admin_${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'; GRANT ALL PRIVILEGES ON *.* TO 'admin_${DB_USER}'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;" 2>/dev/null
+                    log_info "Creating admin user as alternative..."
+                    # Create admin user using root connection
+                    $MYSQL_ROOT_CMD -e "CREATE USER IF NOT EXISTS 'admin_${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'; GRANT ALL PRIVILEGES ON *.* TO 'admin_${DB_USER}'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;" 2>/dev/null
                     if [ $? -eq 0 ]; then
-                        log_info "Created admin user as fallback"
+                        log_info "✓ Created admin user successfully"
                         MYSQL_CMD="mysql -uadmin_${DB_USER} -p'${DB_PASSWORD}'"
                     else
-                        log_warn "Could not create admin user either - database creation may fail"
-                        # Keep default MYSQL_CMD="mysql" and hope for the best
+                        log_warn "Could not create admin user - will use root connection"
+                        MYSQL_CMD="$MYSQL_ROOT_CMD"
                     fi
                 else
+                    log_info "✓ Password set via UPDATE method"
                     MYSQL_CMD="mysql -uroot -p'${DB_PASSWORD}'"
                 fi
             else
+                log_info "✓ Password set via UPDATE method"
                 MYSQL_CMD="mysql -uroot -p'${DB_PASSWORD}'"
             fi
         else
             # If ALTER USER succeeded, use root with password for subsequent DB commands
+            log_info "✓ Password set via ALTER USER"
             MYSQL_CMD="mysql -uroot -p'${DB_PASSWORD}'"
         fi
         
