@@ -137,27 +137,54 @@ mysql --version >/dev/null 2>&1 || MYSQL_OK=1
 if [ "$MYSQL_OK" -eq 1 ]; then
     log_warn "mysql client not available; skipping DB secure steps"
 else
-    # Attempt to set root password using ALTER USER if available
-    log_info "Configuring root user authentication..."
-    $MYSQL_ROOT_CMD -e "SELECT 1" >/dev/null 2>&1 || true
-
-    # Try to detect if unix_socket auth is in use for root
-    HAS_UNIX_SOCKET=$($MYSQL_ROOT_CMD -N -s -e "SELECT plugin FROM mysql.user WHERE User='root' LIMIT 1;" 2>/dev/null || echo "")
-    if echo "$HAS_UNIX_SOCKET" | grep -qi "socket\|unix"; then
-        log_info "Root uses unix_socket authentication; creating a passworded admin user."
-        # Create a separate admin user with full privileges instead
-        ADMIN_USER="admin_${DB_USER}"
-        log_info "Creating local admin user: $ADMIN_USER"
-        $MYSQL_ROOT_CMD -e "CREATE USER IF NOT EXISTS '${ADMIN_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'; GRANT ALL PRIVILEGES ON *.* TO '${ADMIN_USER}'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;" 2>/dev/null
-        if [ $? -eq 0 ]; then
-            log_info "✓ Created admin user successfully"
-            MYSQL_CMD="mysql -u${ADMIN_USER} -p'${DB_PASSWORD}'"
-        else
-            log_warn "Could not create admin user; you may need to configure authentication manually."
-            # Fall back to using root with unix_socket
-            MYSQL_CMD="$MYSQL_ROOT_CMD"
-        fi
+    # First, check if MariaDB is already configured with authentication
+    log_info "Checking existing MariaDB authentication..."
+    
+    # Try connecting with password from .env
+    MYSQL_WITH_PASSWORD="mysql -uroot -p'${DB_PASSWORD}'"
+    eval "$MYSQL_WITH_PASSWORD -e 'SELECT 1'" >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        log_info "✓ MariaDB already configured with password authentication"
+        MYSQL_CMD="$MYSQL_WITH_PASSWORD"
+        ALREADY_CONFIGURED=1
     else
+        # Check if admin user exists and works
+        ADMIN_USER="admin_${DB_USER}"
+        MYSQL_WITH_ADMIN="mysql -u${ADMIN_USER} -p'${DB_PASSWORD}'"
+        eval "$MYSQL_WITH_ADMIN -e 'SELECT 1'" >/dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            log_info "✓ MariaDB already configured with admin user authentication"
+            MYSQL_CMD="$MYSQL_WITH_ADMIN"
+            ALREADY_CONFIGURED=1
+        else
+            ALREADY_CONFIGURED=0
+        fi
+    fi
+    
+    if [ "$ALREADY_CONFIGURED" -eq 1 ]; then
+        log_info "✓ Skipping authentication setup - already configured"
+    else
+        # Attempt to set root password using ALTER USER if available
+        log_info "Configuring root user authentication..."
+        $MYSQL_ROOT_CMD -e "SELECT 1" >/dev/null 2>&1 || true
+
+        # Try to detect if unix_socket auth is in use for root
+        HAS_UNIX_SOCKET=$($MYSQL_ROOT_CMD -N -s -e "SELECT plugin FROM mysql.user WHERE User='root' LIMIT 1;" 2>/dev/null || echo "")
+        if echo "$HAS_UNIX_SOCKET" | grep -qi "socket\|unix"; then
+            log_info "Root uses unix_socket authentication; creating a passworded admin user."
+            # Create a separate admin user with full privileges instead
+            ADMIN_USER="admin_${DB_USER}"
+            log_info "Creating local admin user: $ADMIN_USER"
+            $MYSQL_ROOT_CMD -e "CREATE USER IF NOT EXISTS '${ADMIN_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'; GRANT ALL PRIVILEGES ON *.* TO '${ADMIN_USER}'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;" 2>/dev/null
+            if [ $? -eq 0 ]; then
+                log_info "✓ Created admin user successfully"
+                MYSQL_CMD="mysql -u${ADMIN_USER} -p'${DB_PASSWORD}'"
+            else
+                log_warn "Could not create admin user; you may need to configure authentication manually."
+                # Fall back to using root with unix_socket
+                MYSQL_CMD="$MYSQL_ROOT_CMD"
+            fi
+        else
         # Try ALTER USER first (modern MySQL/MariaDB)
         $MYSQL_ROOT_CMD -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';" 2>/dev/null
         ALTER_STATUS=$?
@@ -198,12 +225,21 @@ else
             MYSQL_CMD="mysql -uroot -p'${DB_PASSWORD}'"
         fi
         
-        # Flush privileges if we changed password
-        if [ "$MYSQL_CMD" != "mysql" ] && [ "$MYSQL_CMD" != "$MYSQL_ROOT_CMD" ]; then
-            eval "$MYSQL_CMD -e \"FLUSH PRIVILEGES;\"" 2>/dev/null || true
-        fi
-        
-        # Remove anonymous users and test DB
+            # Flush privileges if we changed password
+            if [ "$MYSQL_CMD" != "mysql" ] && [ "$MYSQL_CMD" != "$MYSQL_ROOT_CMD" ]; then
+                eval "$MYSQL_CMD -e \"FLUSH PRIVILEGES;\"" 2>/dev/null || true
+            fi
+            
+            # Remove anonymous users and test DB
+            eval "$MYSQL_CMD -e \"DELETE FROM mysql.user WHERE User='';\"" 2>/dev/null || true
+            eval "$MYSQL_CMD -e \"DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost','127.0.0.1','::1');\"" 2>/dev/null || true
+            eval "$MYSQL_CMD -e \"DROP DATABASE IF EXISTS test;\"" 2>/dev/null || true
+            eval "$MYSQL_CMD -e \"DELETE FROM mysql.db WHERE Db='test' OR Db LIKE 'test\\\\_%';\"" 2>/dev/null || true
+        fi  # End of unix_socket check
+    fi  # End of ALREADY_CONFIGURED check
+    
+    # Clean up anonymous users and test DB (run even if already configured)
+    if [ "$ALREADY_CONFIGURED" -eq 1 ]; then
         eval "$MYSQL_CMD -e \"DELETE FROM mysql.user WHERE User='';\"" 2>/dev/null || true
         eval "$MYSQL_CMD -e \"DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost','127.0.0.1','::1');\"" 2>/dev/null || true
         eval "$MYSQL_CMD -e \"DROP DATABASE IF EXISTS test;\"" 2>/dev/null || true

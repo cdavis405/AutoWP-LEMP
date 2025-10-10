@@ -10,7 +10,27 @@ The `provision.sh` script is now **idempotent**, meaning:
 
 ## Checks Added
 
-### 1. Database Check
+### 1. MariaDB Authentication Check (NEW)
+```bash
+# Before configuring MariaDB authentication
+if root password works from .env:
+    ✓ Skip authentication setup
+    log "MariaDB already configured with password"
+    Use existing password
+elif admin user password works:
+    ✓ Skip authentication setup  
+    log "MariaDB already configured with admin user"
+    Use admin user
+else:
+    Configure authentication (first time only)
+```
+
+This prevents the error when re-running:
+```
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+```
+
+### 2. Database Check
 ```bash
 # Before creating database
 if database exists:
@@ -20,7 +40,7 @@ else:
     Create database
 ```
 
-### 2. Database User Check
+### 3. Database User Check
 ```bash
 # Before creating user
 if user exists:
@@ -30,7 +50,7 @@ else:
     Create user and grant privileges
 ```
 
-### 3. WP-CLI Check
+### 4. WP-CLI Check
 ```bash
 # Before installing WP-CLI
 if wp command available:
@@ -40,7 +60,7 @@ else:
     Download and install WP-CLI
 ```
 
-### 4. WordPress Installation Check
+### 5. WordPress Installation Check
 ```bash
 # Three scenarios handled:
 
@@ -57,7 +77,7 @@ else:
     Create wp-config.php
 ```
 
-### 5. NGINX Configuration Check
+### 6. NGINX Configuration Check
 ```bash
 # Three scenarios:
 
