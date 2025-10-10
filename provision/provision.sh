@@ -199,15 +199,15 @@ else
         fi
         
         # Flush privileges if we changed password
-        if [ "$MYSQL_CMD" != "mysql" ]; then
-            $MYSQL_CMD -e "FLUSH PRIVILEGES;" 2>/dev/null || true
+        if [ "$MYSQL_CMD" != "mysql" ] && [ "$MYSQL_CMD" != "$MYSQL_ROOT_CMD" ]; then
+            eval "$MYSQL_CMD -e \"FLUSH PRIVILEGES;\"" 2>/dev/null || true
         fi
         
         # Remove anonymous users and test DB
-        $MYSQL_CMD -e "DELETE FROM mysql.user WHERE User='';" 2>/dev/null || true
-        $MYSQL_CMD -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost','127.0.0.1','::1');" 2>/dev/null || true
-        $MYSQL_CMD -e "DROP DATABASE IF EXISTS test;" 2>/dev/null || true
-        $MYSQL_CMD -e "DELETE FROM mysql.db WHERE Db='test' OR Db LIKE 'test\\_%';" 2>/dev/null || true
+        eval "$MYSQL_CMD -e \"DELETE FROM mysql.user WHERE User='';\"" 2>/dev/null || true
+        eval "$MYSQL_CMD -e \"DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost','127.0.0.1','::1');\"" 2>/dev/null || true
+        eval "$MYSQL_CMD -e \"DROP DATABASE IF EXISTS test;\"" 2>/dev/null || true
+        eval "$MYSQL_CMD -e \"DELETE FROM mysql.db WHERE Db='test' OR Db LIKE 'test\\\\_%';\"" 2>/dev/null || true
     fi
 fi
 set -e
@@ -215,10 +215,10 @@ set -e
 # Create WordPress database and user
 log_info "Creating WordPress database..."
 # Use the determined MySQL command (may include credentials)
-$MYSQL_CMD -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
-$MYSQL_CMD -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'"
-$MYSQL_CMD -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost'"
-$MYSQL_CMD -e "FLUSH PRIVILEGES"
+eval "$MYSQL_CMD -e \"CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci\""
+eval "$MYSQL_CMD -e \"CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'\""
+eval "$MYSQL_CMD -e \"GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost'\""
+eval "$MYSQL_CMD -e \"FLUSH PRIVILEGES\""
 
 # Install WP-CLI
 log_info "Installing WP-CLI..."
