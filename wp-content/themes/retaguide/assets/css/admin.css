@@ -1,11 +1,11 @@
 /**
- * RetaGuide Admin Styles
+ * AutoWP Admin Styles
  *
- * @package RetaGuide
+ * @package AutoWP
  * @since 1.0.0
  */
 
-.retaguide-admin {
+.autowp-admin {
     max-width: 1200px;
 }
 
@@ -195,16 +195,16 @@
         width: 100%;
         margin-bottom: 10px;
     }
-    
+
     #pinned-items-sortable li {
         flex-wrap: wrap;
     }
-    
+
     .custom-title {
         width: 100%;
         order: 3;
     }
-    
+
     .remove-item {
         order: 2;
     }

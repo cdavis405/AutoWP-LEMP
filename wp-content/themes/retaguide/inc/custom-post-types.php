@@ -2,7 +2,7 @@
 /**
  * Custom Post Types
  *
- * @package RetaGuide
+ * @package AutoWP
  * @since 1.0.0
  */
 
@@ -13,32 +13,32 @@ if (!defined('ABSPATH')) {
 /**
  * Register Guides Custom Post Type
  */
-function retaguide_register_guide_cpt() {
+function autowp_register_guide_cpt() {
     $labels = array(
-        'name'                  => _x('Guides', 'Post type general name', 'retaguide'),
-        'singular_name'         => _x('Guide', 'Post type singular name', 'retaguide'),
-        'menu_name'             => _x('Guides', 'Admin Menu text', 'retaguide'),
-        'name_admin_bar'        => _x('Guide', 'Add New on Toolbar', 'retaguide'),
-        'add_new'               => __('Add New', 'retaguide'),
-        'add_new_item'          => __('Add New Guide', 'retaguide'),
-        'new_item'              => __('New Guide', 'retaguide'),
-        'edit_item'             => __('Edit Guide', 'retaguide'),
-        'view_item'             => __('View Guide', 'retaguide'),
-        'all_items'             => __('All Guides', 'retaguide'),
-        'search_items'          => __('Search Guides', 'retaguide'),
-        'parent_item_colon'     => __('Parent Guides:', 'retaguide'),
-        'not_found'             => __('No guides found.', 'retaguide'),
-        'not_found_in_trash'    => __('No guides found in Trash.', 'retaguide'),
-        'featured_image'        => _x('Guide Cover Image', 'Overrides the "Featured Image" phrase', 'retaguide'),
-        'set_featured_image'    => _x('Set cover image', 'Overrides the "Set featured image" phrase', 'retaguide'),
-        'remove_featured_image' => _x('Remove cover image', 'Overrides the "Remove featured image" phrase', 'retaguide'),
-        'use_featured_image'    => _x('Use as cover image', 'Overrides the "Use as featured image" phrase', 'retaguide'),
-        'archives'              => _x('Guide archives', 'The post type archive label used in nav menus', 'retaguide'),
-        'insert_into_item'      => _x('Insert into guide', 'Overrides the "Insert into post"/"Insert into page" phrase', 'retaguide'),
-        'uploaded_to_this_item' => _x('Uploaded to this guide', 'Overrides the "Uploaded to this post"/"Uploaded to this page" phrase', 'retaguide'),
-        'filter_items_list'     => _x('Filter guides list', 'Screen reader text for the filter links', 'retaguide'),
-        'items_list_navigation' => _x('Guides list navigation', 'Screen reader text for the pagination', 'retaguide'),
-        'items_list'            => _x('Guides list', 'Screen reader text for the items list', 'retaguide'),
+        'name'                  => _x('Guides', 'Post type general name', 'autowp'),
+        'singular_name'         => _x('Guide', 'Post type singular name', 'autowp'),
+        'menu_name'             => _x('Guides', 'Admin Menu text', 'autowp'),
+        'name_admin_bar'        => _x('Guide', 'Add New on Toolbar', 'autowp'),
+        'add_new'               => __('Add New', 'autowp'),
+        'add_new_item'          => __('Add New Guide', 'autowp'),
+        'new_item'              => __('New Guide', 'autowp'),
+        'edit_item'             => __('Edit Guide', 'autowp'),
+        'view_item'             => __('View Guide', 'autowp'),
+        'all_items'             => __('All Guides', 'autowp'),
+        'search_items'          => __('Search Guides', 'autowp'),
+        'parent_item_colon'     => __('Parent Guides:', 'autowp'),
+        'not_found'             => __('No guides found.', 'autowp'),
+        'not_found_in_trash'    => __('No guides found in Trash.', 'autowp'),
+        'featured_image'        => _x('Guide Cover Image', 'Overrides the "Featured Image" phrase', 'autowp'),
+        'set_featured_image'    => _x('Set cover image', 'Overrides the "Set featured image" phrase', 'autowp'),
+        'remove_featured_image' => _x('Remove cover image', 'Overrides the "Remove featured image" phrase', 'autowp'),
+        'use_featured_image'    => _x('Use as cover image', 'Overrides the "Use as featured image" phrase', 'autowp'),
+        'archives'              => _x('Guide archives', 'The post type archive label used in nav menus', 'autowp'),
+        'insert_into_item'      => _x('Insert into guide', 'Overrides the "Insert into post"/"Insert into page" phrase', 'autowp'),
+        'uploaded_to_this_item' => _x('Uploaded to this guide', 'Overrides the "Uploaded to this post"/"Uploaded to this page" phrase', 'autowp'),
+        'filter_items_list'     => _x('Filter guides list', 'Screen reader text for the filter links', 'autowp'),
+        'items_list_navigation' => _x('Guides list navigation', 'Screen reader text for the pagination', 'autowp'),
+        'items_list'            => _x('Guides list', 'Screen reader text for the items list', 'autowp'),
     );
 
     $args = array(
@@ -66,52 +66,52 @@ function retaguide_register_guide_cpt() {
 
     register_post_type('guide', $args);
 }
-add_action('init', 'retaguide_register_guide_cpt');
+add_action('init', 'autowp_register_guide_cpt');
 
 /**
  * Add custom meta boxes for guides
  */
-function retaguide_add_guide_meta_boxes() {
+function autowp_add_guide_meta_boxes() {
     add_meta_box(
-        'retaguide_guide_details',
-        __('Guide Details', 'retaguide'),
-        'retaguide_guide_details_callback',
+        'autowp_guide_details',
+        __('Guide Details', 'autowp'),
+        'autowp_guide_details_callback',
         'guide',
         'side',
         'default'
     );
 }
-add_action('add_meta_boxes', 'retaguide_add_guide_meta_boxes');
+add_action('add_meta_boxes', 'autowp_add_guide_meta_boxes');
 
 /**
  * Guide details meta box callback
  */
-function retaguide_guide_details_callback($post) {
-    wp_nonce_field('retaguide_save_guide_details', 'retaguide_guide_details_nonce');
+function autowp_guide_details_callback($post) {
+    wp_nonce_field('autowp_save_guide_details', 'autowp_guide_details_nonce');
 
-    $last_reviewed = get_post_meta($post->ID, '_retaguide_last_reviewed', true);
-    $version = get_post_meta($post->ID, '_retaguide_version', true);
-    $reading_time = get_post_meta($post->ID, '_retaguide_reading_time', true);
+    $last_reviewed = get_post_meta($post->ID, '_autowp_last_reviewed', true);
+    $version = get_post_meta($post->ID, '_autowp_version', true);
+    $reading_time = get_post_meta($post->ID, '_autowp_reading_time', true);
     ?>
     <p>
-        <label for="retaguide_last_reviewed">
-            <strong><?php _e('Last Reviewed:', 'retaguide'); ?></strong>
+        <label for="autowp_last_reviewed">
+            <strong><?php _e('Last Reviewed:', 'autowp'); ?></strong>
         </label>
-        <input type="date" id="retaguide_last_reviewed" name="retaguide_last_reviewed" 
+        <input type="date" id="autowp_last_reviewed" name="autowp_last_reviewed" 
                value="<?php echo esc_attr($last_reviewed); ?>" style="width: 100%;" />
     </p>
     <p>
-        <label for="retaguide_version">
-            <strong><?php _e('Version:', 'retaguide'); ?></strong>
+        <label for="autowp_version">
+            <strong><?php _e('Version:', 'autowp'); ?></strong>
         </label>
-        <input type="text" id="retaguide_version" name="retaguide_version" 
+        <input type="text" id="autowp_version" name="autowp_version" 
                value="<?php echo esc_attr($version); ?>" placeholder="1.0" style="width: 100%;" />
     </p>
     <p>
-        <label for="retaguide_reading_time">
-            <strong><?php _e('Reading Time (minutes):', 'retaguide'); ?></strong>
+        <label for="autowp_reading_time">
+            <strong><?php _e('Reading Time (minutes):', 'autowp'); ?></strong>
         </label>
-        <input type="number" id="retaguide_reading_time" name="retaguide_reading_time" 
+        <input type="number" id="autowp_reading_time" name="autowp_reading_time" 
                value="<?php echo esc_attr($reading_time); ?>" min="1" placeholder="5" style="width: 100%;" />
     </p>
     <?php
@@ -120,10 +120,10 @@ function retaguide_guide_details_callback($post) {
 /**
  * Save guide details meta
  */
-function retaguide_save_guide_details($post_id) {
+function autowp_save_guide_details($post_id) {
     // Check nonce
-    if (!isset($_POST['retaguide_guide_details_nonce']) || 
-        !wp_verify_nonce($_POST['retaguide_guide_details_nonce'], 'retaguide_save_guide_details')) {
+    if (!isset($_POST['autowp_guide_details_nonce']) || 
+        !wp_verify_nonce($_POST['autowp_guide_details_nonce'], 'autowp_save_guide_details')) {
         return;
     }
 
@@ -138,26 +138,26 @@ function retaguide_save_guide_details($post_id) {
     }
 
     // Save last reviewed
-    if (isset($_POST['retaguide_last_reviewed'])) {
-        update_post_meta($post_id, '_retaguide_last_reviewed', sanitize_text_field($_POST['retaguide_last_reviewed']));
+    if (isset($_POST['autowp_last_reviewed'])) {
+        update_post_meta($post_id, '_autowp_last_reviewed', sanitize_text_field($_POST['autowp_last_reviewed']));
     }
 
     // Save version
-    if (isset($_POST['retaguide_version'])) {
-        update_post_meta($post_id, '_retaguide_version', sanitize_text_field($_POST['retaguide_version']));
+    if (isset($_POST['autowp_version'])) {
+        update_post_meta($post_id, '_autowp_version', sanitize_text_field($_POST['autowp_version']));
     }
 
     // Save reading time
-    if (isset($_POST['retaguide_reading_time'])) {
-        update_post_meta($post_id, '_retaguide_reading_time', absint($_POST['retaguide_reading_time']));
+    if (isset($_POST['autowp_reading_time'])) {
+        update_post_meta($post_id, '_autowp_reading_time', absint($_POST['autowp_reading_time']));
     }
 }
-add_action('save_post_guide', 'retaguide_save_guide_details');
+add_action('save_post_guide', 'autowp_save_guide_details');
 
 /**
  * Customize post permalink structure
  */
-function retaguide_custom_permalinks() {
+function autowp_custom_permalinks() {
     // News posts at /news/{post-name}
     add_rewrite_rule(
         '^news/([^/]+)/?$',
@@ -179,18 +179,17 @@ function retaguide_custom_permalinks() {
         'top'
     );
 }
-add_action('init', 'retaguide_custom_permalinks');
+add_action('init', 'autowp_custom_permalinks');
 
 /**
  * Seed default categories for News
  */
-function retaguide_seed_news_categories() {
+function autowp_seed_news_categories() {
     $categories = array(
-        'Research' => 'Latest research findings and clinical studies on Retatrutide',
-        'Safety' => 'Safety information, side effects, and contraindications',
-        'Regulatory' => 'FDA updates, regulations, and compliance news',
-        'Market' => 'Market availability, pricing, and distribution updates',
-        'Reviews' => 'Expert reviews and analysis',
+        'Updates' => 'Latest updates and news',
+        'Features' => 'New features and capabilities',
+        'Community' => 'Community news and events',
+        'Tutorials' => 'Tutorials and how-to guides',
     );
 
     foreach ($categories as $name => $description) {
@@ -202,4 +201,4 @@ function retaguide_seed_news_categories() {
         }
     }
 }
-add_action('after_switch_theme', 'retaguide_seed_news_categories');
+add_action('after_switch_theme', 'autowp_seed_news_categories');

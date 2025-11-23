@@ -2,7 +2,7 @@
 /**
  * Breadcrumbs
  *
- * @package RetaGuide
+ * @package AutoWP
  * @since 1.0.0
  */
 
@@ -13,9 +13,9 @@ if (!defined('ABSPATH')) {
 /**
  * Generate breadcrumbs
  */
-function retaguide_breadcrumbs($args = array()) {
+function autowp_breadcrumbs($args = array()) {
     $defaults = array(
-        'home_label' => __('Home', 'retaguide'),
+        'home_label' => __('Home', 'autowp'),
         'separator' => '<span class="separator" aria-hidden="true">/</span>',
         'show_current' => true,
         'echo' => true,
@@ -46,11 +46,11 @@ function retaguide_breadcrumbs($args = array()) {
         
         if ($post_type === 'post') {
             // News archive
-            $breadcrumbs[] = '<a href="' . esc_url(home_url('/news/')) . '">' . __('News', 'retaguide') . '</a>';
+            $breadcrumbs[] = '<a href="' . esc_url(home_url('/news/')) . '">' . __('News', 'autowp') . '</a>';
             $schema_items[] = array(
                 '@type' => 'ListItem',
                 'position' => $position++,
-                'name' => __('News', 'retaguide'),
+                'name' => __('News', 'autowp'),
                 'item' => home_url('/news/'),
             );
             
@@ -68,11 +68,11 @@ function retaguide_breadcrumbs($args = array()) {
             }
         } elseif ($post_type === 'guide') {
             // Guides archive
-            $breadcrumbs[] = '<a href="' . esc_url(get_post_type_archive_link('guide')) . '">' . __('Guides', 'retaguide') . '</a>';
+            $breadcrumbs[] = '<a href="' . esc_url(get_post_type_archive_link('guide')) . '">' . __('Guides', 'autowp') . '</a>';
             $schema_items[] = array(
                 '@type' => 'ListItem',
                 'position' => $position++,
-                'name' => __('Guides', 'retaguide'),
+                'name' => __('Guides', 'autowp'),
                 'item' => get_post_type_archive_link('guide'),
             );
             
@@ -137,11 +137,11 @@ function retaguide_breadcrumbs($args = array()) {
             );
         }
     } elseif (is_category()) {
-        $breadcrumbs[] = '<a href="' . esc_url(home_url('/news/')) . '">' . __('News', 'retaguide') . '</a>';
+        $breadcrumbs[] = '<a href="' . esc_url(home_url('/news/')) . '">' . __('News', 'autowp') . '</a>';
         $schema_items[] = array(
             '@type' => 'ListItem',
             'position' => $position++,
-            'name' => __('News', 'retaguide'),
+            'name' => __('News', 'autowp'),
             'item' => home_url('/news/'),
         );
         
@@ -155,11 +155,11 @@ function retaguide_breadcrumbs($args = array()) {
             );
         }
     } elseif (is_tag()) {
-        $breadcrumbs[] = '<a href="' . esc_url(home_url('/news/')) . '">' . __('News', 'retaguide') . '</a>';
+        $breadcrumbs[] = '<a href="' . esc_url(home_url('/news/')) . '">' . __('News', 'autowp') . '</a>';
         $schema_items[] = array(
             '@type' => 'ListItem',
             'position' => $position++,
-            'name' => __('News', 'retaguide'),
+            'name' => __('News', 'autowp'),
             'item' => home_url('/news/'),
         );
         
@@ -173,11 +173,11 @@ function retaguide_breadcrumbs($args = array()) {
             );
         }
     } elseif (is_tax('guide_level') || is_tax('guide_topic')) {
-        $breadcrumbs[] = '<a href="' . esc_url(get_post_type_archive_link('guide')) . '">' . __('Guides', 'retaguide') . '</a>';
+        $breadcrumbs[] = '<a href="' . esc_url(get_post_type_archive_link('guide')) . '">' . __('Guides', 'autowp') . '</a>';
         $schema_items[] = array(
             '@type' => 'ListItem',
             'position' => $position++,
-            'name' => __('Guides', 'retaguide'),
+            'name' => __('Guides', 'autowp'),
             'item' => get_post_type_archive_link('guide'),
         );
         
@@ -193,26 +193,26 @@ function retaguide_breadcrumbs($args = array()) {
         }
     } elseif (is_post_type_archive('guide')) {
         if ($args['show_current']) {
-            $breadcrumbs[] = '<span class="current" aria-current="page">' . __('Guides', 'retaguide') . '</span>';
+            $breadcrumbs[] = '<span class="current" aria-current="page">' . __('Guides', 'autowp') . '</span>';
             $schema_items[] = array(
                 '@type' => 'ListItem',
                 'position' => $position++,
-                'name' => __('Guides', 'retaguide'),
+                'name' => __('Guides', 'autowp'),
                 'item' => get_post_type_archive_link('guide'),
             );
         }
     } elseif (is_search()) {
         if ($args['show_current']) {
-            $breadcrumbs[] = '<span class="current" aria-current="page">' . sprintf(__('Search Results for: %s', 'retaguide'), esc_html(get_search_query())) . '</span>';
+            $breadcrumbs[] = '<span class="current" aria-current="page">' . sprintf(__('Search Results for: %s', 'autowp'), esc_html(get_search_query())) . '</span>';
         }
     } elseif (is_404()) {
         if ($args['show_current']) {
-            $breadcrumbs[] = '<span class="current" aria-current="page">' . __('404 Not Found', 'retaguide') . '</span>';
+            $breadcrumbs[] = '<span class="current" aria-current="page">' . __('404 Not Found', 'autowp') . '</span>';
         }
     }
     
     // Build output
-    $output = '<nav class="breadcrumbs" aria-label="' . esc_attr__('Breadcrumb', 'retaguide') . '">';
+    $output = '<nav class="breadcrumbs" aria-label="' . esc_attr__('Breadcrumb', 'autowp') . '">';
     $output .= implode(' ' . $args['separator'] . ' ', $breadcrumbs);
     $output .= '</nav>';
     
@@ -235,16 +235,16 @@ function retaguide_breadcrumbs($args = array()) {
 /**
  * Breadcrumb shortcode
  */
-function retaguide_breadcrumb_shortcode($atts) {
+function autowp_breadcrumb_shortcode($atts) {
     $atts = shortcode_atts(array(
         'separator' => '/',
         'show_current' => true,
     ), $atts, 'breadcrumb');
     
-    return retaguide_breadcrumbs(array(
+    return autowp_breadcrumbs(array(
         'separator' => $atts['separator'],
         'show_current' => $atts['show_current'],
         'echo' => false,
     ));
 }
-add_shortcode('breadcrumb', 'retaguide_breadcrumb_shortcode');
+add_shortcode('breadcrumb', 'autowp_breadcrumb_shortcode');

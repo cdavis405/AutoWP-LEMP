@@ -2,7 +2,7 @@
 /**
  * Pinned Navigation System
  *
- * @package RetaGuide
+ * @package AutoWP
  * @since 1.0.0
  */
 
@@ -13,8 +13,8 @@ if (!defined('ABSPATH')) {
 /**
  * Get pinned navigation items
  */
-function retaguide_get_pinned_nav_items() {
-    $pinned_items = get_option('retaguide_pinned_nav_items', array());
+function autowp_get_pinned_nav_items() {
+    $pinned_items = get_option('autowp_pinned_nav_items', array());
     
     if (empty($pinned_items) || !is_array($pinned_items)) {
         return array();
@@ -34,14 +34,14 @@ function retaguide_get_pinned_nav_items() {
 /**
  * Render pinned navigation items
  */
-function retaguide_render_pinned_nav() {
-    $pinned_items = retaguide_get_pinned_nav_items();
+function autowp_render_pinned_nav() {
+    $pinned_items = autowp_get_pinned_nav_items();
     
     if (empty($pinned_items)) {
         return '';
     }
     
-    $output = '<div class="pinned-nav-items" role="navigation" aria-label="' . esc_attr__('Pinned Navigation', 'retaguide') . '">';
+    $output = '<div class="pinned-nav-items" role="navigation" aria-label="' . esc_attr__('Pinned Navigation', 'autowp') . '">';
     
     foreach ($pinned_items as $item) {
         $post_id = $item['id'];
@@ -66,7 +66,7 @@ function retaguide_render_pinned_nav() {
 /**
  * Add pinned items to navigation block
  */
-function retaguide_add_pinned_to_navigation($block_content, $block) {
+function autowp_add_pinned_to_navigation($block_content, $block) {
     // Only modify navigation blocks
     if ($block['blockName'] !== 'core/navigation') {
         return $block_content;
@@ -77,7 +77,7 @@ function retaguide_add_pinned_to_navigation($block_content, $block) {
     $is_primary = isset($attrs['ref']) || strpos($block_content, 'primary') !== false;
     
     if ($is_primary) {
-        $pinned_nav = retaguide_render_pinned_nav();
+        $pinned_nav = autowp_render_pinned_nav();
         
         if (!empty($pinned_nav)) {
             // Insert pinned items before closing navigation tag
@@ -91,27 +91,27 @@ function retaguide_add_pinned_to_navigation($block_content, $block) {
     
     return $block_content;
 }
-add_filter('render_block', 'retaguide_add_pinned_to_navigation', 10, 2);
+add_filter('render_block', 'autowp_add_pinned_to_navigation', 10, 2);
 
 /**
  * Enqueue admin scripts for pinned nav
  */
-function retaguide_enqueue_pinned_nav_admin_scripts($hook) {
-    if ('appearance_page_retaguide-pinned-nav' !== $hook) {
+function autowp_enqueue_pinned_nav_admin_scripts($hook) {
+    if ('appearance_page_autowp-pinned-nav' !== $hook) {
         return;
     }
     
     wp_enqueue_script('jquery-ui-sortable');
-    wp_enqueue_style('retaguide-admin', RETAGUIDE_THEME_URI . '/assets/css/admin.css', array(), RETAGUIDE_VERSION);
-    wp_enqueue_script('retaguide-pinned-nav', RETAGUIDE_THEME_URI . '/assets/js/pinned-nav-admin.js', array('jquery', 'jquery-ui-sortable'), RETAGUIDE_VERSION, true);
+    wp_enqueue_style('autowp-admin', AUTOWP_THEME_URI . '/assets/css/admin.css', array(), AUTOWP_VERSION);
+    wp_enqueue_script('autowp-pinned-nav', AUTOWP_THEME_URI . '/assets/js/pinned-nav-admin.js', array('jquery', 'jquery-ui-sortable'), AUTOWP_VERSION, true);
 }
-add_action('admin_enqueue_scripts', 'retaguide_enqueue_pinned_nav_admin_scripts');
+add_action('admin_enqueue_scripts', 'autowp_enqueue_pinned_nav_admin_scripts');
 
 /**
  * AJAX handler to search posts/pages
  */
-function retaguide_search_posts_ajax() {
-    check_ajax_referer('retaguide_pinned_nav_search', 'nonce');
+function autowp_search_posts_ajax() {
+    check_ajax_referer('autowp_pinned_nav_search', 'nonce');
     
     if (!current_user_can('edit_theme_options')) {
         wp_send_json_error('Unauthorized');
@@ -145,13 +145,13 @@ function retaguide_search_posts_ajax() {
     
     wp_send_json_success($results);
 }
-add_action('wp_ajax_retaguide_search_posts', 'retaguide_search_posts_ajax');
+add_action('wp_ajax_autowp_search_posts', 'autowp_search_posts_ajax');
 
 /**
  * AJAX handler to save pinned items
  */
-function retaguide_save_pinned_items_ajax() {
-    check_ajax_referer('retaguide_save_pinned_items', 'nonce');
+function autowp_save_pinned_items_ajax() {
+    check_ajax_referer('autowp_save_pinned_items', 'nonce');
     
     if (!current_user_can('edit_theme_options')) {
         wp_send_json_error('Unauthorized');
@@ -170,8 +170,8 @@ function retaguide_save_pinned_items_ajax() {
         }
     }
     
-    update_option('retaguide_pinned_nav_items', $sanitized_items);
+    update_option('autowp_pinned_nav_items', $sanitized_items);
     
     wp_send_json_success(array('message' => 'Pinned items saved successfully'));
 }
-add_action('wp_ajax_retaguide_save_pinned_items', 'retaguide_save_pinned_items_ajax');
+add_action('wp_ajax_autowp_save_pinned_items', 'autowp_save_pinned_items_ajax');

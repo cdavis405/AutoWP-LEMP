@@ -2,7 +2,7 @@
 /**
  * Block Patterns
  *
- * @package RetaGuide
+ * @package AutoWP
  * @since 1.0.0
  */
 
@@ -13,31 +13,31 @@ if (!defined('ABSPATH')) {
 /**
  * Register pattern categories
  */
-function retaguide_register_pattern_categories() {
-    register_block_pattern_category('retaguide-news', array(
-        'label' => __('News', 'retaguide'),
+function autowp_register_pattern_categories() {
+    register_block_pattern_category('autowp-news', array(
+        'label' => __('News', 'autowp'),
     ));
     
-    register_block_pattern_category('retaguide-guides', array(
-        'label' => __('Guides', 'retaguide'),
+    register_block_pattern_category('autowp-guides', array(
+        'label' => __('Guides', 'autowp'),
     ));
     
-    register_block_pattern_category('retaguide-callouts', array(
-        'label' => __('Callouts', 'retaguide'),
+    register_block_pattern_category('autowp-callouts', array(
+        'label' => __('Callouts', 'autowp'),
     ));
 }
-add_action('init', 'retaguide_register_pattern_categories');
+add_action('init', 'autowp_register_pattern_categories');
 
 /**
  * Register block patterns
  */
-function retaguide_register_patterns() {
+function autowp_register_patterns() {
     
     // News: Standard Article Pattern
-    register_block_pattern('retaguide/news-standard-article', array(
-        'title' => __('Standard Article', 'retaguide'),
-        'description' => __('A complete article layout with hero image, metadata, disclaimer, and related posts', 'retaguide'),
-        'categories' => array('retaguide-news'),
+    register_block_pattern('autowp/news-standard-article', array(
+        'title' => __('Standard Article', 'autowp'),
+        'description' => __('A complete article layout with hero image, metadata, disclaimer, and related posts', 'autowp'),
+        'categories' => array('autowp-news'),
         'content' => '<!-- wp:cover {"url":"https://placehold.co/1200x600","dimRatio":30,"minHeight":400,"minHeightUnit":"px","align":"full"} -->
 <div class="wp-block-cover alignfull" style="min-height:400px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-30 has-background-dim"></span><img class="wp-block-cover__image-background" alt="" src="https://placehold.co/1200x600" data-object-fit="cover"/><div class="wp-block-cover__inner-container">
 <!-- wp:post-title {"textAlign":"center","level":1,"style":{"typography":{"fontSize":"3rem"},"elements":{"link":{"color":{"text":"var:preset|color|white"}}}},"textColor":"white"} /-->
@@ -60,7 +60,7 @@ function retaguide_register_patterns() {
 <h3>Medical Disclaimer</h3>
 <!-- /wp:heading -->
 <!-- wp:paragraph -->
-<p>This content is for informational and educational purposes only. Retatrutide is an experimental research peptide not approved by the FDA for human use.</p>
+<p>This content is for informational and educational purposes only. This is a generic disclaimer placeholder.</p>
 <!-- /wp:paragraph -->
 </div>
 <!-- /wp:group -->
@@ -99,10 +99,10 @@ function retaguide_register_patterns() {
     ));
     
     // Guides: Step-by-step Protocol
-    register_block_pattern('retaguide/guide-protocol', array(
-        'title' => __('Step-by-step Protocol', 'retaguide'),
-        'description' => __('A structured guide with numbered steps and safety information', 'retaguide'),
-        'categories' => array('retaguide-guides'),
+    register_block_pattern('autowp/guide-protocol', array(
+        'title' => __('Step-by-step Protocol', 'autowp'),
+        'description' => __('A structured guide with numbered steps and safety information', 'autowp'),
+        'categories' => array('autowp-guides'),
         'content' => '<!-- wp:group {"layout":{"type":"constrained"}} -->
 <div class="wp-block-group">
 <!-- wp:post-title {"level":1} /-->
@@ -186,16 +186,16 @@ function retaguide_register_patterns() {
     ));
     
     // Guides: FAQ Guide
-    register_block_pattern('retaguide/guide-faq', array(
-        'title' => __('FAQ Guide', 'retaguide'),
-        'description' => __('Question and answer format for common inquiries', 'retaguide'),
-        'categories' => array('retaguide-guides'),
+    register_block_pattern('autowp/guide-faq', array(
+        'title' => __('FAQ Guide', 'autowp'),
+        'description' => __('Question and answer format for common inquiries', 'autowp'),
+        'categories' => array('autowp-guides'),
         'content' => '<!-- wp:group {"layout":{"type":"constrained"}} -->
 <div class="wp-block-group">
 <!-- wp:post-title {"level":1} /-->
 
 <!-- wp:paragraph {"className":"lead","fontSize":"large"} -->
-<p class="lead has-large-font-size">Find answers to frequently asked questions about Retatrutide research.</p>
+<p class="lead has-large-font-size">Find answers to frequently asked questions.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:group {"backgroundColor":"warning-amber","className":"disclaimer-banner","layout":{"type":"constrained"}} -->
@@ -214,7 +214,7 @@ function retaguide_register_patterns() {
 <!-- /wp:heading -->
 
 <!-- wp:heading {"level":3} -->
-<h3>What is Retatrutide?</h3>
+<h3>What is AutoWP?</h3>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
@@ -257,10 +257,10 @@ function retaguide_register_patterns() {
     ));
     
     // Guides: Overview Guide
-    register_block_pattern('retaguide/guide-overview', array(
-        'title' => __('Overview Guide', 'retaguide'),
-        'description' => __('Comprehensive overview with key sections', 'retaguide'),
-        'categories' => array('retaguide-guides'),
+    register_block_pattern('autowp/guide-overview', array(
+        'title' => __('Overview Guide', 'autowp'),
+        'description' => __('Comprehensive overview with key sections', 'autowp'),
+        'categories' => array('autowp-guides'),
         'content' => '<!-- wp:group {"layout":{"type":"constrained"}} -->
 <div class="wp-block-group">
 <!-- wp:post-title {"level":1} /-->
@@ -326,10 +326,10 @@ function retaguide_register_patterns() {
     ));
     
     // Callout: Safety Notice
-    register_block_pattern('retaguide/callout-safety', array(
-        'title' => __('Safety Notice', 'retaguide'),
-        'description' => __('Important safety warning callout box', 'retaguide'),
-        'categories' => array('retaguide-callouts'),
+    register_block_pattern('autowp/callout-safety', array(
+        'title' => __('Safety Notice', 'autowp'),
+        'description' => __('Important safety warning callout box', 'autowp'),
+        'categories' => array('autowp-callouts'),
         'content' => '<!-- wp:group {"backgroundColor":"alert-red","className":"callout callout-safety","style":{"border":{"left":{"color":"var:preset|color|alert-red","width":"4px"},"top":{},"right":{},"bottom":{}}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group callout callout-safety has-alert-red-background-color has-background" style="border-left-color:var(--wp--preset--color--alert-red);border-left-width:4px">
 <!-- wp:heading {"level":3,"textColor":"alert-red"} -->
@@ -343,10 +343,10 @@ function retaguide_register_patterns() {
     ));
     
     // Callout: Key Takeaways
-    register_block_pattern('retaguide/callout-takeaways', array(
-        'title' => __('Key Takeaways', 'retaguide'),
-        'description' => __('Highlighted summary of main points', 'retaguide'),
-        'categories' => array('retaguide-callouts'),
+    register_block_pattern('autowp/callout-takeaways', array(
+        'title' => __('Key Takeaways', 'autowp'),
+        'description' => __('Highlighted summary of main points', 'autowp'),
+        'categories' => array('autowp-callouts'),
         'content' => '<!-- wp:group {"backgroundColor":"light-blue","className":"callout callout-takeaways","style":{"border":{"left":{"color":"var:preset|color|primary-blue","width":"4px"}}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group callout callout-takeaways has-light-blue-background-color has-background" style="border-left-color:var(--wp--preset--color--primary-blue);border-left-width:4px">
 <!-- wp:heading {"level":3,"textColor":"primary-blue"} -->
@@ -365,10 +365,10 @@ function retaguide_register_patterns() {
     ));
     
     // Callout: Further Reading
-    register_block_pattern('retaguide/callout-reading', array(
-        'title' => __('Further Reading', 'retaguide'),
-        'description' => __('Links to additional resources', 'retaguide'),
-        'categories' => array('retaguide-callouts'),
+    register_block_pattern('autowp/callout-reading', array(
+        'title' => __('Further Reading', 'autowp'),
+        'description' => __('Links to additional resources', 'autowp'),
+        'categories' => array('autowp-callouts'),
         'content' => '<!-- wp:group {"backgroundColor":"light-green","className":"callout callout-reading","style":{"border":{"left":{"color":"var:preset|color|dark-green","width":"4px"}}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group callout callout-reading has-light-green-background-color has-background" style="border-left-color:var(--wp--preset--color--dark-green);border-left-width:4px">
 <!-- wp:heading {"level":3,"textColor":"dark-green"} -->
@@ -386,4 +386,4 @@ function retaguide_register_patterns() {
 <!-- /wp:group -->',
     ));
 }
-add_action('init', 'retaguide_register_patterns');
+add_action('init', 'autowp_register_patterns');

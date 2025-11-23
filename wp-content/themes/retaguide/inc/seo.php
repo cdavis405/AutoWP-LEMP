@@ -2,7 +2,7 @@
 /**
  * SEO and Meta Tags
  *
- * @package RetaGuide
+ * @package AutoWP
  * @since 1.0.0
  */
 
@@ -13,27 +13,27 @@ if (!defined('ABSPATH')) {
 /**
  * Add meta tags to head
  */
-function retaguide_add_meta_tags() {
+function autowp_add_meta_tags() {
     if (is_singular()) {
-        retaguide_singular_meta_tags();
+        autowp_singular_meta_tags();
     } elseif (is_home() || is_front_page()) {
-        retaguide_homepage_meta_tags();
+        autowp_homepage_meta_tags();
     } elseif (is_archive()) {
-        retaguide_archive_meta_tags();
+        autowp_archive_meta_tags();
     }
 }
-add_action('wp_head', 'retaguide_add_meta_tags');
+add_action('wp_head', 'autowp_add_meta_tags');
 
 /**
  * Singular post meta tags
  */
-function retaguide_singular_meta_tags() {
+function autowp_singular_meta_tags() {
     global $post;
     
     $title = get_the_title();
     $description = get_the_excerpt() ?: wp_trim_words(strip_tags($post->post_content), 30);
     $url = get_permalink();
-    $image = get_the_post_thumbnail_url($post->ID, 'large') ?: RETAGUIDE_THEME_URI . '/assets/images/default-og.jpg';
+    $image = get_the_post_thumbnail_url($post->ID, 'large') ?: AUTOWP_THEME_URI . '/assets/images/default-og.jpg';
     $type = is_singular('guide') ? 'article' : 'article';
     
     // Canonical URL
@@ -77,11 +77,11 @@ function retaguide_singular_meta_tags() {
 /**
  * Homepage meta tags
  */
-function retaguide_homepage_meta_tags() {
+function autowp_homepage_meta_tags() {
     $title = get_bloginfo('name');
     $description = get_bloginfo('description');
     $url = home_url('/');
-    $image = RETAGUIDE_THEME_URI . '/assets/images/default-og.jpg';
+    $image = AUTOWP_THEME_URI . '/assets/images/default-og.jpg';
     
     echo '<link rel="canonical" href="' . esc_url($url) . '" />' . "\n";
     
@@ -99,7 +99,7 @@ function retaguide_homepage_meta_tags() {
 /**
  * Archive meta tags
  */
-function retaguide_archive_meta_tags() {
+function autowp_archive_meta_tags() {
     $title = get_the_archive_title();
     $description = get_the_archive_description() ?: 'Browse ' . $title;
     $url = get_term_link(get_queried_object());
@@ -119,21 +119,21 @@ function retaguide_archive_meta_tags() {
 /**
  * Add JSON-LD structured data
  */
-function retaguide_add_structured_data() {
+function autowp_add_structured_data() {
     if (is_singular('post')) {
-        retaguide_article_schema();
+        autowp_article_schema();
     } elseif (is_singular('guide')) {
-        retaguide_guide_schema();
+        autowp_guide_schema();
     } elseif (is_home() || is_front_page()) {
-        retaguide_organization_schema();
+        autowp_organization_schema();
     }
 }
-add_action('wp_footer', 'retaguide_add_structured_data');
+add_action('wp_footer', 'autowp_add_structured_data');
 
 /**
  * Article schema
  */
-function retaguide_article_schema() {
+function autowp_article_schema() {
     global $post;
     
     $schema = array(
@@ -153,7 +153,7 @@ function retaguide_article_schema() {
             'name' => get_bloginfo('name'),
             'logo' => array(
                 '@type' => 'ImageObject',
-                'url' => RETAGUIDE_THEME_URI . '/assets/images/logo.png',
+                'url' => AUTOWP_THEME_URI . '/assets/images/logo.png',
             ),
         ),
         'mainEntityOfPage' => array(
@@ -168,7 +168,7 @@ function retaguide_article_schema() {
 /**
  * Guide schema (HowTo)
  */
-function retaguide_guide_schema() {
+function autowp_guide_schema() {
     global $post;
     
     $schema = array(
@@ -182,7 +182,7 @@ function retaguide_guide_schema() {
     );
     
     // Add estimated time if available
-    $reading_time = get_post_meta($post->ID, '_retaguide_reading_time', true);
+    $reading_time = get_post_meta($post->ID, '_autowp_reading_time', true);
     if ($reading_time) {
         $schema['totalTime'] = 'PT' . $reading_time . 'M';
     }
@@ -193,14 +193,14 @@ function retaguide_guide_schema() {
 /**
  * Organization schema
  */
-function retaguide_organization_schema() {
+function autowp_organization_schema() {
     $schema = array(
         '@context' => 'https://schema.org',
         '@type' => 'Organization',
         'name' => get_bloginfo('name'),
         'description' => get_bloginfo('description'),
         'url' => home_url('/'),
-        'logo' => RETAGUIDE_THEME_URI . '/assets/images/logo.png',
+        'logo' => AUTOWP_THEME_URI . '/assets/images/logo.png',
     );
     
     echo '<script type="application/ld+json">' . wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . '</script>' . "\n";
@@ -214,8 +214,8 @@ add_filter('wp_sitemaps_enabled', '__return_true');
 /**
  * Add custom post types to sitemap
  */
-function retaguide_add_guides_to_sitemap($post_types) {
+function autowp_add_guides_to_sitemap($post_types) {
     $post_types['guide'] = 'guide';
     return $post_types;
 }
-add_filter('wp_sitemaps_post_types', 'retaguide_add_guides_to_sitemap');
+add_filter('wp_sitemaps_post_types', 'autowp_add_guides_to_sitemap');

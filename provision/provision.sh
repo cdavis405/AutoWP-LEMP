@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###############################################################################
-# RetaGuide Server Provisioning Script
+# AutoWP Server Provisioning Script
 # For Ubuntu 22.04 LTS on Azure VM
 # Installs: NGINX, PHP 8.2, MariaDB, Certbot, WordPress
 ###############################################################################
@@ -33,7 +33,7 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-log_info "Starting RetaGuide server provisioning..."
+log_info "Starting AutoWP server provisioning..."
 
 # Load environment variables
 if [ -f .env ]; then
@@ -43,9 +43,9 @@ else
 fi
 
 # Default values
-DOMAIN="${DOMAIN:-retaguide.com}"
-DB_NAME="${DB_NAME:-retaguide_wp}"
-DB_USER="${DB_USER:-retaguide_user}"
+DOMAIN="${DOMAIN:-yourdomain.com}"
+DB_NAME="${DB_NAME:-autowp_wp}"
+DB_USER="${DB_USER:-autowp_user}"
 DB_PASSWORD="${DB_PASSWORD:-$(openssl rand -base64 32)}"
 WP_ADMIN_USER="${WP_ADMIN_USER:-admin}"
 WP_ADMIN_PASSWORD="${WP_ADMIN_PASSWORD:-$(openssl rand -base64 16)}"
@@ -373,7 +373,7 @@ if [ -d "$REPO_ROOT/wp-content/themes/retaguide" ]; then
     cp -r "$REPO_ROOT/wp-content/themes/retaguide" $WEB_ROOT/wp-content/themes/
     log_info "✓ Theme copied"
 else
-    log_warn "RetaGuide theme not found in repository at: $REPO_ROOT/wp-content/themes/retaguide"
+    log_warn "AutoWP theme not found in repository at: $REPO_ROOT/wp-content/themes/retaguide"
 fi
 
 # Check if MU plugin exists in repo
@@ -628,9 +628,9 @@ systemctl restart fail2ban
 systemctl enable fail2ban
 
 # Save credentials
-CREDENTIALS_FILE="/root/retaguide-credentials.txt"
+CREDENTIALS_FILE="/root/autowp-credentials.txt"
 cat > $CREDENTIALS_FILE <<EOF
-RetaGuide Server Credentials
+AutoWP Server Credentials
 =============================
 Domain: ${DOMAIN}
 Web Root: ${WEB_ROOT}
@@ -675,12 +675,12 @@ log_info ""
 log_info "4. Install WordPress:"
 log_info "   cd $WEB_ROOT"
 log_info "   # Use http://www if SSL not configured yet, https://www after SSL"
-log_info "   sudo -u www-data wp core install --url=http://www.${DOMAIN} --title='RetaGuide' --admin_user=${WP_ADMIN_USER} --admin_password='${WP_ADMIN_PASSWORD}' --admin_email=${WP_ADMIN_EMAIL}"
+log_info "   sudo -u www-data wp core install --url=http://www.${DOMAIN} --title='AutoWP' --admin_user=${WP_ADMIN_USER} --admin_password='${WP_ADMIN_PASSWORD}' --admin_email=${WP_ADMIN_EMAIL}"
 log_info ""
 log_info "   Alternative (if you get permission errors):"
-log_info "   sudo wp core install --url=http://www.${DOMAIN} --title='RetaGuide' --admin_user=${WP_ADMIN_USER} --admin_password='${WP_ADMIN_PASSWORD}' --admin_email=${WP_ADMIN_EMAIL} --allow-root"
+log_info "   sudo wp core install --url=http://www.${DOMAIN} --title='AutoWP' --admin_user=${WP_ADMIN_USER} --admin_password='${WP_ADMIN_PASSWORD}' --admin_email=${WP_ADMIN_EMAIL} --allow-root"
 log_info ""
-log_info "5. Activate RetaGuide theme:"
+log_info "5. Activate AutoWP theme:"
 log_info "   cd $WEB_ROOT"
 log_info "   sudo -u www-data wp theme activate retaguide"
 log_info "   sudo -u www-data wp rewrite flush"

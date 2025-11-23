@@ -1,11 +1,11 @@
-# RetaGuide - WordPress Site for Retatrutide Research
+# Automatic WordPress Installer - LEMP Stack
 
-A comprehensive, production-ready WordPress site focused on experimental research peptide "Retatrutide," featuring custom News and Guides content types, integrated disclaimer system, and full DevOps deployment pipeline.
+A comprehensive, production-ready WordPress site installer featuring a high-performance LEMP stack, integrated disclaimer system, and full DevOps deployment pipeline.
 
 ## 🚀 Recent Updates
 
 - ✅ **IPv6 Support**: Fully configured NGINX and firewall for dual-stack (IPv4 + IPv6)
-- ✅ **WWW Enforcement**: All traffic redirects to www.retaguide.com (prevents session splitting)
+- ✅ **WWW Enforcement**: All traffic redirects to www.yourdomain.com (prevents session splitting)
 - ✅ **Idempotent Provisioning**: Safe to re-run provision.sh multiple times
 - ✅ **Ubuntu 22.04 Ready**: Handles unix_socket authentication automatically
 - ✅ **Comprehensive Documentation**: 12 detailed guides in `provision/` directory
@@ -20,7 +20,7 @@ A comprehensive, production-ready WordPress site focused on experimental researc
 - **Block Patterns**: Pre-built content patterns for News articles, Guides (Protocol, FAQ, Overview), and Callouts (Safety, Takeaways, Reading)
 
 ### Design & UX
-- **Medical Theme**: Clean, professional design with medical color palette (light blues, teals, greens)
+- **Clean Theme**: Clean, professional design with customizable color palette
 - **Fully Responsive**: Mobile-first design with accessible components
 - **Block Theme**: Modern WordPress full site editing with theme.json
 - **WCAG 2.1 AA**: Accessibility-focused with proper focus states, ARIA labels, and keyboard navigation
@@ -59,8 +59,8 @@ A comprehensive, production-ready WordPress site focused on experimental researc
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/retasite.git
-cd retasite
+git clone https://github.com/yourusername/autowp-lemp.git
+cd autowp-lemp
 ```
 
 ### 2. Configure Environment
@@ -72,7 +72,7 @@ nano .env
 ```
 
 Update the following variables:
-- `DOMAIN`: Your domain name (e.g., retaguide.com)
+- `DOMAIN`: Your domain name (e.g., yourdomain.com)
 - `DB_PASSWORD`: Secure database password
 - `WP_ADMIN_USER`: WordPress admin username
 - `WP_ADMIN_PASSWORD`: Secure admin password
@@ -133,12 +133,12 @@ ip -6 addr show eth0 | grep inet6
 
 Wait for DNS propagation (usually 5-30 minutes).
 
-**Note**: The site enforces the www subdomain. All traffic to `retaguide.com` will redirect to `www.retaguide.com`.
+**Note**: The site enforces the www subdomain. All traffic to `yourdomain.com` will redirect to `www.yourdomain.com`.
 
 ### 5. Install SSL Certificate
 
 ```bash
-sudo certbot --nginx -d retaguide.com -d www.retaguide.com
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 ```
 
 Follow the prompts. Certbot will automatically configure NGINX for HTTPS.
@@ -147,13 +147,13 @@ Follow the prompts. Certbot will automatically configure NGINX for HTTPS.
 
 **Option 1: Automated (Recommended)**
 ```bash
-cd ~/retasite/provision
+cd ~/autowp-lemp/provision
 sudo ./configure-nginx-https-www.sh
 ```
 
 **Option 2: Manual**
 ```bash
-sudo nano /etc/nginx/sites-available/retaguide.com
+sudo nano /etc/nginx/sites-available/yourdomain.com
 ```
 
 See `provision/WWW_ENFORCEMENT.md` for the complete HTTPS redirect configuration.
@@ -161,36 +161,36 @@ See `provision/WWW_ENFORCEMENT.md` for the complete HTTPS redirect configuration
 ### 6. Complete WordPress Installation
 
 ```bash
-cd /var/www/retaguide.com
+cd /var/www/yourdomain.com
 
 # Use www subdomain and run as www-data user (recommended)
 sudo -u www-data wp core install \
-  --url=https://www.retaguide.com \
-  --title='RetaGuide' \
+  --url=https://www.yourdomain.com \
+  --title='AutoWP' \
   --admin_user=YOUR_ADMIN_USER \
   --admin_password='YOUR_ADMIN_PASSWORD' \
   --admin_email=YOUR_EMAIL
 
 # Alternative: Run as root (shows warning but works)
-# sudo wp core install --url=https://www.retaguide.com ... --allow-root
+# sudo wp core install --url=https://www.yourdomain.com ... --allow-root
 ```
 
-**Note**: Use `https://www.retaguide.com` (with www) to enforce the www subdomain from the start.
+**Note**: Use `https://www.yourdomain.com` (with www) to enforce the www subdomain from the start.
 
 ### 7. Activate Theme
 
 ```bash
 # Copy theme to WordPress
-sudo cp -r /path/to/retasite/wp-content/themes/retaguide /var/www/retaguide.com/wp-content/themes/
+sudo cp -r /path/to/autowp-lemp/wp-content/themes/retaguide /var/www/yourdomain.com/wp-content/themes/
 
 # Copy MU plugins
-sudo cp -r /path/to/retasite/wp-content/mu-plugins/* /var/www/retaguide.com/wp-content/mu-plugins/
+sudo cp -r /path/to/autowp-lemp/wp-content/mu-plugins/* /var/www/yourdomain.com/wp-content/mu-plugins/
 
 # Set permissions
-sudo ./set-permissions.sh /var/www/retaguide.com
+sudo ./set-permissions.sh /var/www/yourdomain.com
 
 # Activate theme via WP-CLI
-cd /var/www/retaguide.com
+cd /var/www/yourdomain.com
 sudo wp theme activate retaguide --allow-root
 
 # Flush rewrite rules
@@ -199,7 +199,7 @@ sudo wp rewrite flush --allow-root
 
 ### 8. Access Your Site
 
-Visit `https://www.retaguide.com/wp-admin` and log in with your admin credentials.
+Visit `https://www.yourdomain.com/wp-admin` and log in with your admin credentials.
 
 ## 📚 Provisioning Documentation
 
@@ -222,7 +222,7 @@ The `provision/` directory contains comprehensive guides for setup and troublesh
 
 - ✅ **Idempotent**: Safe to run multiple times, skips existing configurations
 - ✅ **IPv6 Ready**: Automatically configures NGINX and firewall for IPv6
-- ✅ **WWW Enforcement**: All traffic redirects to www.retaguide.com
+- ✅ **WWW Enforcement**: All traffic redirects to www.yourdomain.com
 - ✅ **Ubuntu 22.04**: Handles unix_socket authentication automatically
 - ✅ **Modern Security**: Fail2ban, UFW, security headers, restricted permissions
 
@@ -307,13 +307,13 @@ rsync -avz --delete \
   --exclude '.git' \
   --exclude 'node_modules' \
   wp-content/themes/retaguide/ \
-  user@retaguide.com:/var/www/retaguide.com/wp-content/themes/retaguide/
+  user@yourdomain.com:/var/www/yourdomain.com/wp-content/themes/retaguide/
 
 # SSH to server
-ssh user@retaguide.com
+ssh user@yourdomain.com
 
 # Set permissions
-cd /var/www/retaguide.com
+cd /var/www/yourdomain.com
 sudo chown -R www-data:www-data wp-content/themes/retaguide
 sudo find wp-content/themes/retaguide -type d -exec chmod 755 {} \;
 sudo find wp-content/themes/retaguide -type f -exec chmod 644 {} \;
@@ -327,17 +327,17 @@ sudo systemctl reload php8.2-fpm
 
 #### Automated (GitHub Actions)
 1. Go to **Actions** tab in GitHub
-2. Select **Deploy RetaGuide** workflow
+2. Select **Deploy AutoWP** workflow
 3. Click **Run workflow** > Select **rollback** job
 
 #### Manual
 ```bash
-ssh user@retaguide.com
-cd /var/backups/retaguide
+ssh user@yourdomain.com
+cd /var/backups/autowp
 ls -lt theme-backup-*.tar.gz  # List backups
-sudo tar -xzf theme-backup-TIMESTAMP.tar.gz -C /var/www/retaguide.com/wp-content/themes/
-sudo chown -R www-data:www-data /var/www/retaguide.com/wp-content/themes/retaguide
-sudo wp cache flush --path=/var/www/retaguide.com --allow-root
+sudo tar -xzf theme-backup-TIMESTAMP.tar.gz -C /var/www/yourdomain.com/wp-content/themes/
+sudo chown -R www-data:www-data /var/www/yourdomain.com/wp-content/themes/retaguide
+sudo wp cache flush --path=/var/www/yourdomain.com --allow-root
 ```
 
 ## 🛠️ Maintenance
@@ -345,7 +345,7 @@ sudo wp cache flush --path=/var/www/retaguide.com --allow-root
 ### Update WordPress Core
 
 ```bash
-cd /var/www/retaguide.com
+cd /var/www/yourdomain.com
 sudo wp core update --allow-root
 sudo wp core update-db --allow-root
 ```
@@ -360,8 +360,8 @@ sudo wp plugin update --all --allow-root
 
 Manual backup:
 ```bash
-sudo wp db export /var/backups/retaguide/db-backup-$(date +%Y%m%d).sql --allow-root
-gzip /var/backups/retaguide/db-backup-*.sql
+sudo wp db export /var/backups/autowp/db-backup-$(date +%Y%m%d).sql --allow-root
+gzip /var/backups/autowp/db-backup-*.sql
 ```
 
 Automated backups run daily via MU plugin.
@@ -370,16 +370,16 @@ Automated backups run daily via MU plugin.
 
 ```bash
 # NGINX access log
-sudo tail -f /var/log/nginx/retaguide.com_access.log
+sudo tail -f /var/log/nginx/yourdomain.com_access.log
 
 # NGINX error log
-sudo tail -f /var/log/nginx/retaguide.com_error.log
+sudo tail -f /var/log/nginx/yourdomain.com_error.log
 
 # PHP-FPM log
 sudo tail -f /var/log/php8.2-fpm.log
 
 # WordPress debug log (if WP_DEBUG enabled)
-tail -f /var/www/retaguide.com/wp-content/debug.log
+tail -f /var/www/yourdomain.com/wp-content/debug.log
 ```
 
 ### Renew SSL Certificate
@@ -393,7 +393,7 @@ sudo systemctl reload nginx
 ## 📁 File Structure
 
 ```
-retasite/
+autowp-lemp/
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml                      # CI/CD pipeline
@@ -506,13 +506,13 @@ sudo systemctl status php8.2-fpm
 sudo nginx -t
 
 # Check error logs
-sudo tail -n 50 /var/log/nginx/retaguide.com_error.log
+sudo tail -n 50 /var/log/nginx/yourdomain.com_error.log
 ```
 
 ### White screen of death
 ```bash
 # Enable WordPress debug mode
-sudo nano /var/www/retaguide.com/wp-config.php
+sudo nano /var/www/yourdomain.com/wp-config.php
 
 # Add before "That's all":
 define('WP_DEBUG', true);
@@ -520,7 +520,7 @@ define('WP_DEBUG_LOG', true);
 define('WP_DEBUG_DISPLAY', false);
 
 # Check debug log
-tail -f /var/www/retaguide.com/wp-content/debug.log
+tail -f /var/www/yourdomain.com/wp-content/debug.log
 ```
 
 ### Database connection errors
@@ -529,10 +529,10 @@ tail -f /var/www/retaguide.com/wp-content/debug.log
 sudo systemctl status mariadb
 
 # Test database connection
-mysql -u retaguide_user -p retaguide_wp
+mysql -u autowp_user -p autowp_wp
 
 # Verify wp-config.php credentials
-sudo cat /var/www/retaguide.com/wp-config.php | grep DB_
+sudo cat /var/www/yourdomain.com/wp-config.php | grep DB_
 ```
 
 ### MariaDB authentication issues during provisioning
@@ -553,7 +553,7 @@ sudo cat /var/www/retaguide.com/wp-config.php | grep DB_
 sudo mysql -e "SELECT User,Host,plugin FROM mysql.user WHERE User='root';"
 
 # If root uses unix_socket, create an admin user instead:
-sudo mysql -e "CREATE USER IF NOT EXISTS 'admin_retaguide'@'localhost' IDENTIFIED BY 'YourPassword'; GRANT ALL PRIVILEGES ON *.* TO 'admin_retaguide'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+sudo mysql -e "CREATE USER IF NOT EXISTS 'admin_autowp'@'localhost' IDENTIFIED BY 'YourPassword'; GRANT ALL PRIVILEGES ON *.* TO 'admin_autowp'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;"
 
 # If root uses mysql_native_password, change password with ALTER USER:
 sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'YourPassword'; FLUSH PRIVILEGES;"
@@ -569,7 +569,7 @@ This runs a Docker container with MariaDB and tests all authentication scenarios
 ### Permission issues
 ```bash
 cd /workspaces/Retasite/provision
-sudo ./set-permissions.sh /var/www/retaguide.com
+sudo ./set-permissions.sh /var/www/yourdomain.com
 ```
 
 ### SSL certificate issues
@@ -608,4 +608,4 @@ This project is licensed under the GNU General Public License v2 or later.
 
 ---
 
-**Important**: This site contains information about Retatrutide, an experimental research peptide. All content includes appropriate medical disclaimers and is for educational purposes only.
+**Important**: This site is an automatic WordPress installer.

@@ -1,7 +1,7 @@
 /**
- * RetaGuide Custom Styles
+ * AutoWP Custom Styles
  *
- * @package RetaGuide
+ * @package AutoWP
  * @since 1.0.0
  */
 
@@ -349,6 +349,7 @@
 
 /* === Print Styles === */
 @media print {
+
     .site-header,
     .site-footer,
     .wp-block-navigation,

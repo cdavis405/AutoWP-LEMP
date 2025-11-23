@@ -2,7 +2,7 @@
 /**
  * Custom Taxonomies
  *
- * @package RetaGuide
+ * @package AutoWP
  * @since 1.0.0
  */
 
@@ -13,24 +13,24 @@ if (!defined('ABSPATH')) {
 /**
  * Register Guide Level taxonomy
  */
-function retaguide_register_guide_level_taxonomy() {
+function autowp_register_guide_level_taxonomy() {
     $labels = array(
-        'name'                       => _x('Guide Levels', 'taxonomy general name', 'retaguide'),
-        'singular_name'              => _x('Guide Level', 'taxonomy singular name', 'retaguide'),
-        'search_items'               => __('Search Guide Levels', 'retaguide'),
-        'popular_items'              => __('Popular Guide Levels', 'retaguide'),
-        'all_items'                  => __('All Guide Levels', 'retaguide'),
+        'name'                       => _x('Guide Levels', 'taxonomy general name', 'autowp'),
+        'singular_name'              => _x('Guide Level', 'taxonomy singular name', 'autowp'),
+        'search_items'               => __('Search Guide Levels', 'autowp'),
+        'popular_items'              => __('Popular Guide Levels', 'autowp'),
+        'all_items'                  => __('All Guide Levels', 'autowp'),
         'parent_item'                => null,
         'parent_item_colon'          => null,
-        'edit_item'                  => __('Edit Guide Level', 'retaguide'),
-        'update_item'                => __('Update Guide Level', 'retaguide'),
-        'add_new_item'               => __('Add New Guide Level', 'retaguide'),
-        'new_item_name'              => __('New Guide Level Name', 'retaguide'),
-        'separate_items_with_commas' => __('Separate guide levels with commas', 'retaguide'),
-        'add_or_remove_items'        => __('Add or remove guide levels', 'retaguide'),
-        'choose_from_most_used'      => __('Choose from the most used guide levels', 'retaguide'),
-        'not_found'                  => __('No guide levels found.', 'retaguide'),
-        'menu_name'                  => __('Guide Levels', 'retaguide'),
+        'edit_item'                  => __('Edit Guide Level', 'autowp'),
+        'update_item'                => __('Update Guide Level', 'autowp'),
+        'add_new_item'               => __('Add New Guide Level', 'autowp'),
+        'new_item_name'              => __('New Guide Level Name', 'autowp'),
+        'separate_items_with_commas' => __('Separate guide levels with commas', 'autowp'),
+        'add_or_remove_items'        => __('Add or remove guide levels', 'autowp'),
+        'choose_from_most_used'      => __('Choose from the most used guide levels', 'autowp'),
+        'not_found'                  => __('No guide levels found.', 'autowp'),
+        'menu_name'                  => __('Guide Levels', 'autowp'),
     );
 
     $args = array(
@@ -46,29 +46,29 @@ function retaguide_register_guide_level_taxonomy() {
 
     register_taxonomy('guide_level', array('guide'), $args);
 }
-add_action('init', 'retaguide_register_guide_level_taxonomy', 0);
+add_action('init', 'autowp_register_guide_level_taxonomy', 0);
 
 /**
  * Register Guide Topic taxonomy
  */
-function retaguide_register_guide_topic_taxonomy() {
+function autowp_register_guide_topic_taxonomy() {
     $labels = array(
-        'name'                       => _x('Guide Topics', 'taxonomy general name', 'retaguide'),
-        'singular_name'              => _x('Guide Topic', 'taxonomy singular name', 'retaguide'),
-        'search_items'               => __('Search Guide Topics', 'retaguide'),
-        'popular_items'              => __('Popular Guide Topics', 'retaguide'),
-        'all_items'                  => __('All Guide Topics', 'retaguide'),
-        'parent_item'                => __('Parent Guide Topic', 'retaguide'),
-        'parent_item_colon'          => __('Parent Guide Topic:', 'retaguide'),
-        'edit_item'                  => __('Edit Guide Topic', 'retaguide'),
-        'update_item'                => __('Update Guide Topic', 'retaguide'),
-        'add_new_item'               => __('Add New Guide Topic', 'retaguide'),
-        'new_item_name'              => __('New Guide Topic Name', 'retaguide'),
-        'separate_items_with_commas' => __('Separate guide topics with commas', 'retaguide'),
-        'add_or_remove_items'        => __('Add or remove guide topics', 'retaguide'),
-        'choose_from_most_used'      => __('Choose from the most used guide topics', 'retaguide'),
-        'not_found'                  => __('No guide topics found.', 'retaguide'),
-        'menu_name'                  => __('Guide Topics', 'retaguide'),
+        'name'                       => _x('Guide Topics', 'taxonomy general name', 'autowp'),
+        'singular_name'              => _x('Guide Topic', 'taxonomy singular name', 'autowp'),
+        'search_items'               => __('Search Guide Topics', 'autowp'),
+        'popular_items'              => __('Popular Guide Topics', 'autowp'),
+        'all_items'                  => __('All Guide Topics', 'autowp'),
+        'parent_item'                => __('Parent Guide Topic', 'autowp'),
+        'parent_item_colon'          => __('Parent Guide Topic:', 'autowp'),
+        'edit_item'                  => __('Edit Guide Topic', 'autowp'),
+        'update_item'                => __('Update Guide Topic', 'autowp'),
+        'add_new_item'               => __('Add New Guide Topic', 'autowp'),
+        'new_item_name'              => __('New Guide Topic Name', 'autowp'),
+        'separate_items_with_commas' => __('Separate guide topics with commas', 'autowp'),
+        'add_or_remove_items'        => __('Add or remove guide topics', 'autowp'),
+        'choose_from_most_used'      => __('Choose from the most used guide topics', 'autowp'),
+        'not_found'                  => __('No guide topics found.', 'autowp'),
+        'menu_name'                  => __('Guide Topics', 'autowp'),
     );
 
     $args = array(
@@ -84,24 +84,24 @@ function retaguide_register_guide_topic_taxonomy() {
 
     register_taxonomy('guide_topic', array('guide'), $args);
 }
-add_action('init', 'retaguide_register_guide_topic_taxonomy', 0);
+add_action('init', 'autowp_register_guide_topic_taxonomy', 0);
 
 /**
  * Seed default Guide Level terms
  */
-function retaguide_seed_guide_levels() {
+function autowp_seed_guide_levels() {
     $levels = array(
         'Beginner' => array(
-            'description' => 'Introductory guides for those new to Retatrutide research',
+            'description' => 'Introductory guides',
             'slug' => 'beginner',
         ),
-        'Protocol' => array(
-            'description' => 'Detailed research protocols and methodologies',
-            'slug' => 'protocol',
+        'Intermediate' => array(
+            'description' => 'Intermediate guides',
+            'slug' => 'intermediate',
         ),
-        'Safety' => array(
-            'description' => 'Safety guidelines and risk management information',
-            'slug' => 'safety',
+        'Advanced' => array(
+            'description' => 'Advanced guides',
+            'slug' => 'advanced',
         ),
     );
 
@@ -114,36 +114,28 @@ function retaguide_seed_guide_levels() {
         }
     }
 }
-add_action('after_switch_theme', 'retaguide_seed_guide_levels');
+add_action('after_switch_theme', 'autowp_seed_guide_levels');
 
 /**
  * Seed default Guide Topic terms
  */
-function retaguide_seed_guide_topics() {
+function autowp_seed_guide_topics() {
     $topics = array(
-        'Mechanism' => array(
-            'description' => 'How Retatrutide works at the molecular level',
-            'slug' => 'mechanism',
+        'Installation' => array(
+            'description' => 'Installation guides',
+            'slug' => 'installation',
         ),
-        'Dosing' => array(
-            'description' => 'Dosing guidelines and administration protocols',
-            'slug' => 'dosing',
+        'Configuration' => array(
+            'description' => 'Configuration guides',
+            'slug' => 'configuration',
         ),
-        'Monitoring' => array(
-            'description' => 'Monitoring parameters and follow-up procedures',
-            'slug' => 'monitoring',
+        'Maintenance' => array(
+            'description' => 'Maintenance guides',
+            'slug' => 'maintenance',
         ),
-        'Interactions' => array(
-            'description' => 'Drug interactions and contraindications',
-            'slug' => 'interactions',
-        ),
-        'Clinical Trials' => array(
-            'description' => 'Information about ongoing and completed clinical trials',
-            'slug' => 'clinical-trials',
-        ),
-        'Patient Education' => array(
-            'description' => 'Educational materials for patients and caregivers',
-            'slug' => 'patient-education',
+        'Security' => array(
+            'description' => 'Security guides',
+            'slug' => 'security',
         ),
     );
 
@@ -156,32 +148,32 @@ function retaguide_seed_guide_topics() {
         }
     }
 }
-add_action('after_switch_theme', 'retaguide_seed_guide_topics');
+add_action('after_switch_theme', 'autowp_seed_guide_topics');
 
 /**
  * Add custom columns to guide admin list
  */
-function retaguide_guide_columns($columns) {
+function autowp_guide_columns($columns) {
     $new_columns = array();
     
     foreach ($columns as $key => $value) {
         $new_columns[$key] = $value;
         
         if ($key === 'title') {
-            $new_columns['guide_level'] = __('Level', 'retaguide');
-            $new_columns['guide_topic'] = __('Topics', 'retaguide');
-            $new_columns['last_reviewed'] = __('Last Reviewed', 'retaguide');
+            $new_columns['guide_level'] = __('Level', 'autowp');
+            $new_columns['guide_topic'] = __('Topics', 'autowp');
+            $new_columns['last_reviewed'] = __('Last Reviewed', 'autowp');
         }
     }
     
     return $new_columns;
 }
-add_filter('manage_guide_posts_columns', 'retaguide_guide_columns');
+add_filter('manage_guide_posts_columns', 'autowp_guide_columns');
 
 /**
  * Populate custom columns
  */
-function retaguide_guide_column_content($column, $post_id) {
+function autowp_guide_column_content($column, $post_id) {
     switch ($column) {
         case 'guide_level':
             $terms = get_the_terms($post_id, 'guide_level');
@@ -212,7 +204,7 @@ function retaguide_guide_column_content($column, $post_id) {
             break;
 
         case 'last_reviewed':
-            $last_reviewed = get_post_meta($post_id, '_retaguide_last_reviewed', true);
+            $last_reviewed = get_post_meta($post_id, '_autowp_last_reviewed', true);
             if ($last_reviewed) {
                 echo date('M j, Y', strtotime($last_reviewed));
             } else {
@@ -221,28 +213,28 @@ function retaguide_guide_column_content($column, $post_id) {
             break;
     }
 }
-add_action('manage_guide_posts_custom_column', 'retaguide_guide_column_content', 10, 2);
+add_action('manage_guide_posts_custom_column', 'autowp_guide_column_content', 10, 2);
 
 /**
  * Make custom columns sortable
  */
-function retaguide_guide_sortable_columns($columns) {
+function autowp_guide_sortable_columns($columns) {
     $columns['last_reviewed'] = 'last_reviewed';
     return $columns;
 }
-add_filter('manage_edit-guide_sortable_columns', 'retaguide_guide_sortable_columns');
+add_filter('manage_edit-guide_sortable_columns', 'autowp_guide_sortable_columns');
 
 /**
  * Handle sorting by last reviewed
  */
-function retaguide_guide_orderby($query) {
+function autowp_guide_orderby($query) {
     if (!is_admin() || !$query->is_main_query()) {
         return;
     }
 
     if ('last_reviewed' === $query->get('orderby')) {
-        $query->set('meta_key', '_retaguide_last_reviewed');
+        $query->set('meta_key', '_autowp_last_reviewed');
         $query->set('orderby', 'meta_value');
     }
 }
-add_action('pre_get_posts', 'retaguide_guide_orderby');
+add_action('pre_get_posts', 'autowp_guide_orderby');

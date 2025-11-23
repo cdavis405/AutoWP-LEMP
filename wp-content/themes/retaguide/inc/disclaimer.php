@@ -2,7 +2,7 @@
 /**
  * Disclaimer System
  *
- * @package RetaGuide
+ * @package AutoWP
  * @since 1.0.0
  */
 
@@ -13,11 +13,11 @@ if (!defined('ABSPATH')) {
 /**
  * Get global disclaimer text
  */
-function retaguide_get_global_disclaimer() {
-    $disclaimer = get_option('retaguide_global_disclaimer', '');
+function autowp_get_global_disclaimer() {
+    $disclaimer = get_option('autowp_global_disclaimer', '');
     
     if (empty($disclaimer)) {
-        $disclaimer = '<p><strong>Medical Disclaimer:</strong> This content is for informational and educational purposes only. Retatrutide is an experimental research peptide not approved by the FDA for human use. The information provided does not constitute medical advice and should not be used for diagnosis or treatment. Always consult with a qualified healthcare provider before making any decisions related to your health or treatment.</p>';
+        $disclaimer = '<p><strong>Disclaimer:</strong> This content is for informational and educational purposes only. This is a generic disclaimer placeholder.</p>';
     }
     
     return wp_kses_post($disclaimer);
@@ -26,9 +26,9 @@ function retaguide_get_global_disclaimer() {
 /**
  * Render disclaimer HTML
  */
-function retaguide_render_disclaimer($content = '', $type = 'standard') {
+function autowp_render_disclaimer($content = '', $type = 'standard') {
     if (empty($content)) {
-        $content = retaguide_get_global_disclaimer();
+        $content = autowp_get_global_disclaimer();
     }
     
     $classes = 'disclaimer-banner';
@@ -36,7 +36,7 @@ function retaguide_render_disclaimer($content = '', $type = 'standard') {
         $classes .= ' alert';
     }
     
-    $title = ($type === 'alert') ? __('Important Safety Information', 'retaguide') : __('Disclaimer', 'retaguide');
+    $title = ($type === 'alert') ? __('Important Information', 'autowp') : __('Disclaimer', 'autowp');
     
     $html = sprintf(
         '<div class="%s" role="alert" aria-label="%s">
@@ -55,14 +55,14 @@ function retaguide_render_disclaimer($content = '', $type = 'standard') {
 /**
  * Check if post should show disclaimer
  */
-function retaguide_should_show_disclaimer($post_id) {
+function autowp_should_show_disclaimer($post_id) {
     // Check if disclaimer is globally disabled
-    if (!get_option('retaguide_enable_global_disclaimer', true)) {
+    if (!get_option('autowp_enable_global_disclaimer', true)) {
         return false;
     }
     
     // Check if this specific post has disabled the disclaimer
-    $hide_disclaimer = get_post_meta($post_id, '_retaguide_hide_disclaimer', true);
+    $hide_disclaimer = get_post_meta($post_id, '_autowp_hide_disclaimer', true);
     if ($hide_disclaimer === 'yes') {
         return false;
     }
@@ -73,8 +73,8 @@ function retaguide_should_show_disclaimer($post_id) {
 /**
  * Get post-specific disclaimer override
  */
-function retaguide_get_post_disclaimer($post_id) {
-    $custom_disclaimer = get_post_meta($post_id, '_retaguide_custom_disclaimer', true);
+function autowp_get_post_disclaimer($post_id) {
+    $custom_disclaimer = get_post_meta($post_id, '_autowp_custom_disclaimer', true);
     
     if (!empty($custom_disclaimer)) {
         return wp_kses_post($custom_disclaimer);
@@ -86,34 +86,34 @@ function retaguide_get_post_disclaimer($post_id) {
 /**
  * Prepend disclaimer to post content
  */
-function retaguide_prepend_disclaimer($content) {
+function autowp_prepend_disclaimer($content) {
     if (!is_singular(array('post', 'guide'))) {
         return $content;
     }
     
     $post_id = get_the_ID();
     
-    if (!retaguide_should_show_disclaimer($post_id)) {
+    if (!autowp_should_show_disclaimer($post_id)) {
         return $content;
     }
     
     // Check for custom disclaimer first
-    $disclaimer_text = retaguide_get_post_disclaimer($post_id);
+    $disclaimer_text = autowp_get_post_disclaimer($post_id);
     if (empty($disclaimer_text)) {
-        $disclaimer_text = retaguide_get_global_disclaimer();
+        $disclaimer_text = autowp_get_global_disclaimer();
     }
     
-    $disclaimer_html = retaguide_render_disclaimer($disclaimer_text);
+    $disclaimer_html = autowp_render_disclaimer($disclaimer_text);
     
     return $disclaimer_html . $content;
 }
-add_filter('the_content', 'retaguide_prepend_disclaimer', 10);
+add_filter('the_content', 'autowp_prepend_disclaimer', 10);
 
 /**
  * Disclaimer shortcode
  * Usage: [disclaimer] or [disclaimer type="alert"]
  */
-function retaguide_disclaimer_shortcode($atts) {
+function autowp_disclaimer_shortcode($atts) {
     $atts = shortcode_atts(array(
         'type' => 'standard',
         'custom' => '',
@@ -127,60 +127,60 @@ function retaguide_disclaimer_shortcode($atts) {
         $disclaimer_text = $atts['custom'];
     } else {
         // Check for post-specific override
-        $disclaimer_text = retaguide_get_post_disclaimer($post_id);
+        $disclaimer_text = autowp_get_post_disclaimer($post_id);
         
         // Fall back to global
         if (empty($disclaimer_text)) {
-            $disclaimer_text = retaguide_get_global_disclaimer();
+            $disclaimer_text = autowp_get_global_disclaimer();
         }
     }
     
-    return retaguide_render_disclaimer($disclaimer_text, $atts['type']);
+    return autowp_render_disclaimer($disclaimer_text, $atts['type']);
 }
-add_shortcode('disclaimer', 'retaguide_disclaimer_shortcode');
+add_shortcode('disclaimer', 'autowp_disclaimer_shortcode');
 
 /**
  * Add disclaimer meta box to posts and guides
  */
-function retaguide_add_disclaimer_meta_box() {
+function autowp_add_disclaimer_meta_box() {
     $post_types = array('post', 'guide');
     
     foreach ($post_types as $post_type) {
         add_meta_box(
-            'retaguide_disclaimer_settings',
-            __('Disclaimer Settings', 'retaguide'),
-            'retaguide_disclaimer_meta_box_callback',
+            'autowp_disclaimer_settings',
+            __('Disclaimer Settings', 'autowp'),
+            'autowp_disclaimer_meta_box_callback',
             $post_type,
             'side',
             'default'
         );
     }
 }
-add_action('add_meta_boxes', 'retaguide_add_disclaimer_meta_box');
+add_action('add_meta_boxes', 'autowp_add_disclaimer_meta_box');
 
 /**
  * Disclaimer meta box callback
  */
-function retaguide_disclaimer_meta_box_callback($post) {
-    wp_nonce_field('retaguide_save_disclaimer', 'retaguide_disclaimer_nonce');
+function autowp_disclaimer_meta_box_callback($post) {
+    wp_nonce_field('autowp_save_disclaimer', 'autowp_disclaimer_nonce');
     
-    $hide_disclaimer = get_post_meta($post->ID, '_retaguide_hide_disclaimer', true);
-    $custom_disclaimer = get_post_meta($post->ID, '_retaguide_custom_disclaimer', true);
+    $hide_disclaimer = get_post_meta($post->ID, '_autowp_hide_disclaimer', true);
+    $custom_disclaimer = get_post_meta($post->ID, '_autowp_custom_disclaimer', true);
     ?>
     <p>
         <label>
-            <input type="checkbox" name="retaguide_hide_disclaimer" value="yes" 
+            <input type="checkbox" name="autowp_hide_disclaimer" value="yes" 
                    <?php checked($hide_disclaimer, 'yes'); ?> />
-            <?php _e('Hide global disclaimer on this post', 'retaguide'); ?>
+            <?php _e('Hide global disclaimer on this post', 'autowp'); ?>
         </label>
     </p>
     
     <p>
-        <label for="retaguide_custom_disclaimer">
-            <strong><?php _e('Custom Disclaimer (optional):', 'retaguide'); ?></strong>
+        <label for="autowp_custom_disclaimer">
+            <strong><?php _e('Custom Disclaimer (optional):', 'autowp'); ?></strong>
         </label>
         <?php
-        wp_editor($custom_disclaimer, 'retaguide_custom_disclaimer', array(
+        wp_editor($custom_disclaimer, 'autowp_custom_disclaimer', array(
             'textarea_rows' => 5,
             'media_buttons' => false,
             'teeny' => true,
@@ -188,7 +188,7 @@ function retaguide_disclaimer_meta_box_callback($post) {
         ));
         ?>
         <span class="description">
-            <?php _e('Leave blank to use the global disclaimer. This will override the global disclaimer if provided.', 'retaguide'); ?>
+            <?php _e('Leave blank to use the global disclaimer. This will override the global disclaimer if provided.', 'autowp'); ?>
         </span>
     </p>
     <?php
@@ -197,10 +197,10 @@ function retaguide_disclaimer_meta_box_callback($post) {
 /**
  * Save disclaimer meta
  */
-function retaguide_save_disclaimer_meta($post_id) {
+function autowp_save_disclaimer_meta($post_id) {
     // Check nonce
-    if (!isset($_POST['retaguide_disclaimer_nonce']) || 
-        !wp_verify_nonce($_POST['retaguide_disclaimer_nonce'], 'retaguide_save_disclaimer')) {
+    if (!isset($_POST['autowp_disclaimer_nonce']) || 
+        !wp_verify_nonce($_POST['autowp_disclaimer_nonce'], 'autowp_save_disclaimer')) {
         return;
     }
 
@@ -215,29 +215,29 @@ function retaguide_save_disclaimer_meta($post_id) {
     }
 
     // Save hide disclaimer setting
-    if (isset($_POST['retaguide_hide_disclaimer'])) {
-        update_post_meta($post_id, '_retaguide_hide_disclaimer', 'yes');
+    if (isset($_POST['autowp_hide_disclaimer'])) {
+        update_post_meta($post_id, '_autowp_hide_disclaimer', 'yes');
     } else {
-        delete_post_meta($post_id, '_retaguide_hide_disclaimer');
+        delete_post_meta($post_id, '_autowp_hide_disclaimer');
     }
 
     // Save custom disclaimer
-    if (isset($_POST['retaguide_custom_disclaimer'])) {
-        update_post_meta($post_id, '_retaguide_custom_disclaimer', wp_kses_post($_POST['retaguide_custom_disclaimer']));
+    if (isset($_POST['autowp_custom_disclaimer'])) {
+        update_post_meta($post_id, '_autowp_custom_disclaimer', wp_kses_post($_POST['autowp_custom_disclaimer']));
     }
 }
-add_action('save_post', 'retaguide_save_disclaimer_meta');
+add_action('save_post', 'autowp_save_disclaimer_meta');
 
 /**
  * Register disclaimer block (Gutenberg reusable block)
  */
-function retaguide_register_disclaimer_block() {
+function autowp_register_disclaimer_block() {
     // Register the block pattern for disclaimer
     register_block_pattern(
-        'retaguide/disclaimer-block',
+        'autowp/disclaimer-block',
         array(
-            'title'       => __('Disclaimer Block', 'retaguide'),
-            'description' => _x('A standardized disclaimer notice', 'Block pattern description', 'retaguide'),
+            'title'       => __('Disclaimer Block', 'autowp'),
+            'description' => _x('A standardized disclaimer notice', 'Block pattern description', 'autowp'),
             'content'     => '<!-- wp:group {"backgroundColor":"warning-amber","className":"disclaimer-banner"} -->
 <div class="wp-block-group disclaimer-banner has-warning-amber-background-color has-background">
     <!-- wp:heading {"level":3} -->
@@ -245,13 +245,13 @@ function retaguide_register_disclaimer_block() {
     <!-- /wp:heading -->
     
     <!-- wp:paragraph -->
-    <p><strong>Medical Disclaimer:</strong> This content is for informational and educational purposes only. Retatrutide is an experimental research peptide not approved by the FDA for human use. The information provided does not constitute medical advice and should not be used for diagnosis or treatment. Always consult with a qualified healthcare provider before making any decisions related to your health or treatment.</p>
+    <p><strong>Disclaimer:</strong> This content is for informational and educational purposes only. This is a generic disclaimer placeholder.</p>
     <!-- /wp:paragraph -->
 </div>
 <!-- /wp:group -->',
             'categories'  => array('text'),
-            'keywords'    => array('disclaimer', 'warning', 'legal', 'medical'),
+            'keywords'    => array('disclaimer', 'warning', 'legal'),
         )
     );
 }
-add_action('init', 'retaguide_register_disclaimer_block');
+add_action('init', 'autowp_register_disclaimer_block');

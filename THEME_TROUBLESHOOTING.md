@@ -37,14 +37,14 @@ This is **usually safe to ignore** and occurs because:
 
 Check these on the **frontend** (not in editor):
 
-1. **Homepage displays correctly** - `https://www.retaguide.com`
+1. **Homepage displays correctly** - `https://www.yourdomain.com`
 2. **Custom colors show** - Medical blue/teal theme colors visible
 3. **Navigation works** - Header and footer menus function
 4. **Custom post types** - Guides are available in admin
 
 If the frontend looks good, the warnings are cosmetic!
 
-### Common Causes in RetaGuide Theme
+### Common Causes in AutoWP Theme
 
 The warnings appear on these blocks because they use custom classes:
 
@@ -77,18 +77,18 @@ Must-Use (MU) plugins **don't appear in the regular Plugins menu** by design.
 
 **Or check the URL directly:**
 ```
-https://www.retaguide.com/wp-admin/plugins.php?plugin_status=mustuse
+https://www.yourdomain.com/wp-admin/plugins.php?plugin_status=mustuse
 ```
 
 ### What You Should See
 
-**Plugin Name:** RetaGuide Security  
-**Description:** Security hardening for RetaGuide WordPress site  
+**Plugin Name:** AutoWP Security  
+**Description:** Security hardening for AutoWP WordPress site  
 **Version:** 1.0.0
 
 ### Features Provided by MU Plugin
 
-The RetaGuide Security plugin automatically:
+The AutoWP Security plugin automatically:
 
 ✅ Disables file editing in admin (DISALLOW_FILE_EDIT)  
 ✅ Disables XML-RPC (prevents brute force)  
@@ -118,7 +118,7 @@ The RetaGuide Security plugin automatically:
 
 **Test security headers:**
 ```bash
-curl -I https://www.retaguide.com
+curl -I https://www.yourdomain.com
 ```
 
 Look for:
@@ -130,7 +130,7 @@ X-XSS-Protection: 1; mode=block
 
 **Test XML-RPC disabled:**
 ```bash
-curl -X POST https://www.retaguide.com/xmlrpc.php
+curl -X POST https://www.yourdomain.com/xmlrpc.php
 ```
 
 Should return 403 or similar error.
@@ -153,26 +153,26 @@ If `wp-config.php` has permissions like `644` or `664`, other users on the serve
 
 **Option 1: Run the deploy script (fixes automatically)**
 ```bash
-cd ~/retasite/provision
+cd ~/autowp-lemp/provision
 sudo ./deploy-theme.sh
 ```
 
 **Option 2: Manual fix**
 ```bash
-sudo chmod 600 /var/www/retaguide.com/wp-config.php
-sudo chown www-data:www-data /var/www/retaguide.com/wp-config.php
+sudo chmod 600 /var/www/yourdomain.com/wp-config.php
+sudo chown www-data:www-data /var/www/yourdomain.com/wp-config.php
 ```
 
 **Option 3: Run permissions script**
 ```bash
-cd ~/retasite/provision
-sudo ./set-permissions.sh /var/www/retaguide.com
+cd ~/autowp-lemp/provision
+sudo ./set-permissions.sh /var/www/yourdomain.com
 ```
 
 ### Verify Fix
 
 ```bash
-ls -la /var/www/retaguide.com/wp-config.php
+ls -la /var/www/yourdomain.com/wp-config.php
 ```
 
 Should show:
@@ -199,22 +199,22 @@ The warning appears if:
 
 ```bash
 # WordPress root
-chown -R www-data:www-data /var/www/retaguide.com
+chown -R www-data:www-data /var/www/yourdomain.com
 
 # Directories
-find /var/www/retaguide.com -type d -exec chmod 755 {} \;
+find /var/www/yourdomain.com -type d -exec chmod 755 {} \;
 
 # Files
-find /var/www/retaguide.com -type f -exec chmod 644 {} \;
+find /var/www/yourdomain.com -type f -exec chmod 644 {} \;
 
 # wp-config.php (most important!)
-chmod 600 /var/www/retaguide.com/wp-config.php
+chmod 600 /var/www/yourdomain.com/wp-config.php
 
 # .htaccess (if exists)
-chmod 644 /var/www/retaguide.com/.htaccess
+chmod 644 /var/www/yourdomain.com/.htaccess
 
 # Uploads (writable)
-chmod 775 /var/www/retaguide.com/wp-content/uploads
+chmod 775 /var/www/yourdomain.com/wp-content/uploads
 ```
 
 ## Quick Fixes - Run These Now
@@ -224,7 +224,7 @@ chmod 775 /var/www/retaguide.com/wp-content/uploads
 ssh user@your-server
 
 # Fix all three issues at once
-cd ~/retasite/provision
+cd ~/autowp-lemp/provision
 git pull origin main
 sudo ./deploy-theme.sh
 
@@ -254,7 +254,7 @@ Once everything is working:
 
 1. Click `+` in block editor
 2. Go to **Patterns** tab
-3. Find **RetaGuide** patterns:
+3. Find **AutoWP** patterns:
    - Standard Article
    - Step-by-step Protocol
    - FAQ Guide
@@ -290,7 +290,7 @@ sudo tail -f /var/log/php8.2-fpm.log
 
 Enable debug mode in wp-config.php:
 ```bash
-sudo nano /var/www/retaguide.com/wp-config.php
+sudo nano /var/www/yourdomain.com/wp-config.php
 ```
 
 Add before "That's all":
@@ -302,13 +302,13 @@ define('WP_DEBUG_DISPLAY', false);
 
 View logs:
 ```bash
-tail -f /var/www/retaguide.com/wp-content/debug.log
+tail -f /var/www/yourdomain.com/wp-content/debug.log
 ```
 
 ### Clear All Caches
 
 ```bash
-cd /var/www/retaguide.com
+cd /var/www/yourdomain.com
 sudo -u www-data wp cache flush
 sudo systemctl reload php8.2-fpm
 sudo systemctl reload nginx
@@ -317,8 +317,8 @@ sudo systemctl reload nginx
 ### Verify Theme Files Exist
 
 ```bash
-ls -la /var/www/retaguide.com/wp-content/themes/retaguide/
-ls -la /var/www/retaguide.com/wp-content/mu-plugins/
+ls -la /var/www/yourdomain.com/wp-content/themes/retaguide/
+ls -la /var/www/yourdomain.com/wp-content/mu-plugins/
 ```
 
 Should see:

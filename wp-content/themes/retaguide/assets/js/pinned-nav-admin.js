@@ -1,7 +1,7 @@
 /**
- * RetaGuide Pinned Navigation Admin JavaScript
+ * AutoWP Pinned Navigation Admin JavaScript
  *
- * @package RetaGuide
+ * @package AutoWP
  * @since 1.0.0
  */
 
@@ -68,12 +68,12 @@
             resultsContainer.addClass('has-results');
 
             $.ajax({
-                url: retaguideAdmin.ajaxUrl,
+                url: autowpAdmin.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'retaguide_search_posts',
+                    action: 'autowp_search_posts',
                     search: query,
-                    nonce: retaguideAdmin.searchNonce
+                    nonce: autowpAdmin.searchNonce
                 },
                 success: function(response) {
                     if (response.success && response.data.length > 0) {
@@ -198,12 +198,12 @@
             
             // Save via AJAX
             $.ajax({
-                url: retaguideAdmin.ajaxUrl,
+                url: autowpAdmin.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'retaguide_save_pinned_items',
+                    action: 'autowp_save_pinned_items',
                     items: items,
-                    nonce: retaguideAdmin.saveNonce
+                    nonce: autowpAdmin.saveNonce
                 },
                 success: function(response) {
                     button.prop('disabled', false);

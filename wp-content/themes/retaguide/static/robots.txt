@@ -1,5 +1,5 @@
-# Robots.txt for RetaGuide
-# https://retaguide.com/robots.txt
+# Robots.txt for AutoWP
+# https://autowp.com/robots.txt
 
 User-agent: *
 Allow: /
@@ -24,4 +24,4 @@ Allow: /wp-includes/js/
 Allow: /wp-includes/css/
 
 # Sitemap
-Sitemap: https://retaguide.com/wp-sitemap.xml
+Sitemap: https://autowp.com/wp-sitemap.xml

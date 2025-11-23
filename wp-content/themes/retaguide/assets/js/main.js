@@ -1,11 +1,11 @@
 /**
- * RetaGuide Main JavaScript
+ * AutoWP Main JavaScript
  *
- * @package RetaGuide
+ * @package AutoWP
  * @since 1.0.0
  */
 
-(function() {
+(function () {
     'use strict';
 
     /**
@@ -25,12 +25,12 @@
         // Native lazy loading is handled by browser
         // This adds a class when image is loaded for CSS transitions
         const images = document.querySelectorAll('img[loading="lazy"]');
-        
+
         images.forEach(img => {
             if (img.complete) {
                 img.classList.add('loaded');
             } else {
-                img.addEventListener('load', function() {
+                img.addEventListener('load', function () {
                     this.classList.add('loaded');
                 });
             }
@@ -49,7 +49,7 @@
         document.body.insertBefore(skipLink, document.body.firstChild);
 
         // Handle keyboard navigation
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             // Tab key
             if (e.key === 'Tab') {
                 document.body.classList.add('keyboard-nav');
@@ -57,7 +57,7 @@
         });
 
         // Remove class on mouse use
-        document.addEventListener('mousedown', function() {
+        document.addEventListener('mousedown', function () {
             document.body.classList.remove('keyboard-nav');
         });
 
@@ -76,16 +76,16 @@
      */
     function setupSmoothScroll() {
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
+            anchor.addEventListener('click', function (e) {
                 const href = this.getAttribute('href');
-                
+
                 // Skip if it's just # or #0
                 if (href === '#' || href === '#0') {
                     return;
                 }
 
                 const target = document.querySelector(href);
-                
+
                 if (target) {
                     e.preventDefault();
                     const headerOffset = 80;
@@ -110,12 +110,12 @@
      */
     function setupMobileNav() {
         const navToggle = document.querySelector('.wp-block-navigation__responsive-container-open');
-        
+
         if (navToggle) {
-            navToggle.addEventListener('click', function() {
+            navToggle.addEventListener('click', function () {
                 const nav = document.querySelector('.wp-block-navigation');
                 const isExpanded = this.getAttribute('aria-expanded') === 'true';
-                
+
                 // Trap focus in mobile nav when open
                 if (!isExpanded) {
                     trapFocus(nav);
@@ -134,7 +134,7 @@
         const firstFocusable = focusableElements[0];
         const lastFocusable = focusableElements[focusableElements.length - 1];
 
-        element.addEventListener('keydown', function(e) {
+        element.addEventListener('keydown', function (e) {
             if (e.key !== 'Tab') return;
 
             if (e.shiftKey) {
@@ -167,7 +167,7 @@
     /**
      * Expose announce function globally
      */
-    window.retaguide = {
+    window.autowp = {
         announce: announce
     };
 

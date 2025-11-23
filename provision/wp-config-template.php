@@ -1,7 +1,7 @@
 <?php
 /**
  * The base configuration for WordPress
- * Hardened configuration for RetaGuide
+ * Hardened configuration for AutoWP
  *
  * This file is used by the provisioning script.
  * Manual configuration: https://wordpress.org/support/article/editing-wp-config-php/
@@ -36,7 +36,7 @@ define('NONCE_SALT',       'put your unique phrase here');
  * WordPress database table prefix
  * Use custom prefix for additional security
  */
-$table_prefix = 'wp_rg_';
+$table_prefix = 'wp_awp_';
 
 /**
  * Security configurations
@@ -87,7 +87,7 @@ define( 'DISABLE_WP_CRON', false );
 
 // Alternative Cron (use system cron instead)
 // define( 'DISABLE_WP_CRON', true );
-// Add to system crontab: */15 * * * * wget -q -O - https://retaguide.com/wp-cron.php?doing_wp_cron >/dev/null 2>&1
+// Add to system crontab: */15 * * * * wget -q -O - https://yourdomain.com/wp-cron.php?doing_wp_cron >/dev/null 2>&1
 
 // Empty trash automatically
 define( 'EMPTY_TRASH_DAYS', 30 );
@@ -118,13 +118,13 @@ define( 'COOKIE_DOMAIN', false );
  * Uncomment if you want to move wp-content
  */
 // define( 'WP_CONTENT_DIR', dirname(__FILE__) . '/wp-content' );
-// define( 'WP_CONTENT_URL', 'https://retaguide.com/wp-content' );
+// define( 'WP_CONTENT_URL', 'https://yourdomain.com/wp-content' );
 
 /**
  * Custom plugin directory (optional)
  */
 // define( 'WP_PLUGIN_DIR', dirname(__FILE__) . '/wp-content/plugins' );
-// define( 'WP_PLUGIN_URL', 'https://retaguide.com/wp-content/plugins' );
+// define( 'WP_PLUGIN_URL', 'https://yourdomain.com/wp-content/plugins' );
 
 /**
  * Multisite configuration (if needed)
