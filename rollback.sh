@@ -18,10 +18,10 @@ fi
 REMOTE_USER="${AZURE_VM_USER:-azureuser}"
 REMOTE_HOST="${AZURE_VM_IP}"
 REMOTE_PATH="/var/www/${DOMAIN}"
-BACKUP_DIR="/var/backups/retaguide"
+BACKUP_DIR="/var/backups/autowp"
 
 echo "═══════════════════════════════════════════"
-echo "  RetaGuide Rollback"
+echo "  AutoWP Rollback"
 echo "═══════════════════════════════════════════"
 echo ""
 
@@ -66,13 +66,13 @@ ssh ${REMOTE_USER}@${REMOTE_HOST} << EOF
     echo "Restoring from: \$BACKUP_PATH"
     
     # Create a backup of current state before rollback
-    sudo tar -czf ${BACKUP_DIR}/pre-rollback-\$(date +%Y%m%d_%H%M%S).tar.gz -C ${REMOTE_PATH}/wp-content/themes retaguide
+    sudo tar -czf ${BACKUP_DIR}/pre-rollback-\$(date +%Y%m%d_%H%M%S).tar.gz -C ${REMOTE_PATH}/wp-content/themes autowp-theme
     
     # Extract backup
     sudo tar -xzf \$BACKUP_PATH -C ${REMOTE_PATH}/wp-content/themes/
     
     # Set permissions
-    sudo chown -R www-data:www-data ${REMOTE_PATH}/wp-content/themes/retaguide
+    sudo chown -R www-data:www-data ${REMOTE_PATH}/wp-content/themes/autowp-theme
     
     # Clear cache
     sudo -u www-data wp cache flush --path=${REMOTE_PATH} --allow-root || true

@@ -3,11 +3,13 @@
 ## What's Wrong
 
 Your MariaDB installation is in a corrupted state where even `sudo mysql` fails with:
-```
+
+```text
 ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
 ```
 
 This should NEVER happen on a fresh install. It means:
+
 - The authentication system is broken
 - Previous failed provision attempts left it in a bad state
 - The only solution is to reset MariaDB completely
@@ -15,6 +17,7 @@ This should NEVER happen on a fresh install. It means:
 ## The Solution: Complete MariaDB Reset
 
 I've created a script that will:
+
 1. Backup your current MariaDB data (just in case)
 2. Stop MariaDB
 3. Remove the corrupted data directory
@@ -24,11 +27,11 @@ I've created a script that will:
 
 ## Step-by-Step Instructions
 
-### On Your VM, run these commands:
+### On Your VM, run these commands
 
 ```bash
 # 1. Pull the latest code (includes reset script)
-cd ~/retasite
+cd ~/autowp-lemp
 git pull --ff-only origin main
 
 # 2. Make the reset script executable
@@ -41,7 +44,8 @@ sudo provision/test-mariadb-reset.sh
 ### Expected Output
 
 You should see:
-```
+
+```text
 [STEP] 1. Checking current MariaDB state...
 [STEP] 2. Stopping MariaDB...
 [STEP] 3. Backing up current data...
@@ -72,7 +76,7 @@ You should see:
 
 ```bash
 # 4. Run provision.sh
-cd ~/retasite/provision
+cd ~/autowp-lemp/provision
 sudo ./provision.sh
 ```
 
@@ -81,6 +85,7 @@ This time it should work!
 ## Why Your MariaDB Got Corrupted
 
 Multiple failed provision attempts tried to:
+
 1. Change root password → Failed
 2. Update mysql.user table → Failed  
 3. Left the authentication system in an inconsistent state
@@ -90,11 +95,13 @@ The old provision.sh had bugs that didn't handle Ubuntu 22.04's unix_socket auth
 ## What the Reset Script Does
 
 ### Safe Parts
+
 - Backs up your current data to `/root/mariadb-backup-TIMESTAMP/`
 - You can restore it if needed (though it's corrupted)
 - Only removes MariaDB data, not the MySQL binary/packages
 
 ### Fresh Start
+
 - Runs `mysql_install_db` to create a clean database
 - Root will work with unix_socket (Ubuntu default)
 - No corrupted authentication state
@@ -131,42 +138,52 @@ sudo mysql -e "SELECT User,Host,plugin FROM mysql.user WHERE User='root';"
 Once provision.sh completes successfully, you can:
 
 1. **Delete the backup**:
+
    ```bash
    sudo rm -rf /root/mariadb-backup-*
    ```
 
 2. **Verify WordPress database**:
+
    ```bash
-   mysql -uretaguide_user -p -e "SHOW DATABASES;"
-   # Should show retaguide_wp
+   mysql -uautowp_user -p -e "SHOW DATABASES;"
+   # Should show autowp_wp
    ```
 
 3. **Continue with WordPress setup**:
+
    ```bash
-   cd /var/www/retaguide.com
-   sudo wp core install --url=https://retaguide.com --title='RetaGuide' --admin_user=admin --admin_password='YourAdminPass' --admin_email=admin@retaguide.com --allow-root
+   cd /var/www/yourdomain.com
+   sudo wp core install --url=https://yourdomain.com --title='AutoWP' --admin_user=admin --admin_password='YourAdminPass' --admin_email=admin@yourdomain.com --allow-root
    ```
 
 ## Common Questions
 
 ### Q: Will I lose data?
+
 **A**: The script backs up your current MariaDB data, but since it's corrupted and you haven't set up WordPress yet, there's nothing to lose. You're essentially starting fresh, which is what you want.
 
 ### Q: Can I just uninstall and reinstall MariaDB?
+
 **A**: That would work too, but it's more disruptive:
+
 ```bash
 sudo apt-get remove --purge mariadb-server mariadb-client -y
 sudo apt-get autoremove -y
 sudo rm -rf /var/lib/mysql /etc/mysql
 sudo apt-get install mariadb-server mariadb-client -y
 ```
+
 The reset script is cleaner because it keeps your package configuration.
 
 ### Q: Why did provision.sh corrupt it?
+
 **A**: The old provision.sh didn't properly handle Ubuntu 22.04's unix_socket authentication. It tried to run `mysql` commands that required root privileges but didn't use the root connection properly. This left the authentication system in a broken state.
 
 ### Q: Will the NEW provision.sh work?
+
 **A**: Yes! The new version:
+
 - Uses `MYSQL_ROOT_CMD` to run commands as root
 - Properly detects unix_socket authentication
 - Creates an admin user that works
@@ -175,8 +192,9 @@ The reset script is cleaner because it keeps your package configuration.
 ## Summary
 
 **Do this on your VM:**
+
 ```bash
-cd ~/retasite
+cd ~/autowp-lemp
 git pull --ff-only origin main
 sudo provision/test-mariadb-reset.sh
 sudo provision/provision.sh

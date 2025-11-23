@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<ruleset name="RetaGuide">
-    <description>PHP CodeSniffer configuration for RetaGuide theme</description>
+<ruleset name="AutoWP">
+    <description>PHP CodeSniffer configuration for AutoWP theme</description>
     
     <!-- What to scan -->
-    <file>wp-content/themes/retaguide</file>
+    <file>wp-content/themes/autowp-theme</file>
     <file>wp-content/mu-plugins</file>
     
     <!-- Exclude patterns -->
@@ -34,7 +34,7 @@
     <rule ref="WordPress.WP.I18n">
         <properties>
             <property name="text_domain" type="array">
-                <element value="retaguide"/>
+                <element value="autowp"/>
             </property>
         </properties>
     </rule>
@@ -42,7 +42,7 @@
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
         <properties>
             <property name="prefixes" type="array">
-                <element value="retaguide"/>
+                <element value="autowp"/>
             </property>
         </properties>
     </rule>

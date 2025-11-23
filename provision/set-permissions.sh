@@ -22,7 +22,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Get web root from argument or use default
-WEB_ROOT="${1:-/var/www/retaguide.com}"
+WEB_ROOT="${1:-/var/www/yourdomain.com}"
 
 if [ ! -d "$WEB_ROOT" ]; then
     echo "Error: Directory $WEB_ROOT does not exist"

@@ -107,7 +107,7 @@ echo ""
 log_step "9. Testing admin user creation (provision.sh logic)..."
 
 DB_PASSWORD="TestPassword123!"
-DB_USER="retaguide_user"
+DB_USER="autowp_user"
 
 # Try to create admin user
 mysql -e "CREATE USER IF NOT EXISTS 'admin_${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'; GRANT ALL PRIVILEGES ON *.* TO 'admin_${DB_USER}'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;" 2>/dev/null
@@ -156,7 +156,7 @@ log_info "Root can connect without password (passwordless/unix_socket)."
 log_info "Admin user creation and database operations work correctly."
 echo ""
 log_info "Next steps:"
-log_info "1. Run: cd ~/retasite/provision"
+log_info "1. Run: cd ~/autowp-lemp/provision"
 log_info "2. Run: sudo ./provision.sh"
 echo ""
 log_warn "Note: The backup of your old MariaDB data is at: $BACKUP_DIR"

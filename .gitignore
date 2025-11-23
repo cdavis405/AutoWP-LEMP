@@ -84,11 +84,11 @@ composer.lock
 /wp-content/plugins/*/
 !/wp-content/plugins/.gitkeep
 /wp-content/themes/*/
-!/wp-content/themes/retaguide/
+!/wp-content/themes/autowp-theme/
 
 # MU Plugins - keep custom, ignore others
 /wp-content/mu-plugins/*/
-!/wp-content/mu-plugins/retaguide-security.php
+!/wp-content/mu-plugins/autowp-security.php
 !/wp-content/mu-plugins/.gitkeep
 
 # Keep directory structure

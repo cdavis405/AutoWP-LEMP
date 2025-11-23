@@ -1,10 +1,11 @@
 # IPv6 Configuration Guide
 
-This guide explains how IPv6 connectivity is configured for the RetaGuide site on Azure VM.
+This guide explains how IPv6 connectivity is configured for the AutoWP site on Azure VM.
 
 ## Overview
 
 Your Azure VM has both IPv4 and IPv6 connectivity. The provision script automatically configures:
+
 - ✓ NGINX to listen on both IPv4 and IPv6
 - ✓ UFW firewall to allow both IPv4 and IPv6 traffic
 - ✓ All necessary ports (22, 80, 443) for both protocols
@@ -20,26 +21,27 @@ The NGINX configuration includes IPv6 listen directives:
 server {
     listen 80;           # IPv4
     listen [::]:80;      # IPv6
-    server_name retaguide.com;
-    return 301 http://www.retaguide.com$request_uri;
+    server_name yourdomain.com;
+    return 301 http://www.yourdomain.com$request_uri;
 }
 
 # HTTP - Main site (www)
 server {
     listen 80;           # IPv4
     listen [::]:80;      # IPv6
-    server_name www.retaguide.com;
+    server_name www.yourdomain.com;
     # ... rest of config
 }
 ```
 
 After SSL setup with Certbot:
+
 ```nginx
 # HTTPS
 server {
     listen 443 ssl http2;           # IPv4
     listen [::]:443 ssl http2;      # IPv6
-    server_name www.retaguide.com;
+    server_name www.yourdomain.com;
     # ... SSL and site config
 }
 ```
@@ -54,6 +56,7 @@ IPV6=yes
 ```
 
 The provision script ensures this setting and opens required ports:
+
 ```bash
 ufw allow 22/tcp   # SSH (IPv4 + IPv6)
 ufw allow 80/tcp   # HTTP (IPv4 + IPv6)
@@ -73,7 +76,8 @@ ifconfig eth0 | grep inet6
 ```
 
 You should see something like:
-```
+
+```text
 inet6 2603:1234:5678:9abc::1/128 scope global
 ```
 
@@ -100,11 +104,6 @@ sudo ss -tlnp | grep nginx
 # :::443        (IPv6)
 ```
 
-Or using netstat:
-```bash
-sudo netstat -tlnp | grep nginx
-```
-
 ### 4. Verify UFW Allows IPv6
 
 ```bash
@@ -125,13 +124,13 @@ From an external machine with IPv6 connectivity:
 
 ```bash
 # Test HTTP (before SSL)
-curl -6 -I http://www.retaguide.com
+curl -6 -I http://www.yourdomain.com
 
 # Test HTTPS (after SSL)
-curl -6 -I https://www.retaguide.com
+curl -6 -I https://www.yourdomain.com
 
 # Force IPv6 with host header
-curl -6 -I -H "Host: www.retaguide.com" http://[YOUR_IPV6_ADDRESS]
+curl -6 -I -H "Host: www.yourdomain.com" http://[YOUR_IPV6_ADDRESS]
 ```
 
 ## DNS Configuration for IPv6
@@ -139,16 +138,18 @@ curl -6 -I -H "Host: www.retaguide.com" http://[YOUR_IPV6_ADDRESS]
 To make your site accessible via IPv6, add AAAA records to your DNS:
 
 ### Option 1: Direct AAAA Records
-```
-AAAA  @      YOUR_IPV6_ADDRESS    (retaguide.com)
-AAAA  www    YOUR_IPV6_ADDRESS    (www.retaguide.com)
+
+```text
+AAAA  @      YOUR_IPV6_ADDRESS    (yourdomain.com)
+AAAA  www    YOUR_IPV6_ADDRESS    (www.yourdomain.com)
 ```
 
 ### Option 2: A + AAAA for @ and CNAME for www
-```
+
+```text
 A       @      YOUR_IPV4_ADDRESS
 AAAA    @      YOUR_IPV6_ADDRESS
-CNAME   www    retaguide.com
+CNAME   www    yourdomain.com
 ```
 
 **Important**: If using CNAME for www, you must have both A and AAAA records on the root (@) domain.
@@ -157,14 +158,14 @@ CNAME   www    retaguide.com
 
 ```bash
 # Check AAAA records
-dig AAAA retaguide.com
-dig AAAA www.retaguide.com
+dig AAAA yourdomain.com
+dig AAAA www.yourdomain.com
 
 # Or using host
-host -t AAAA www.retaguide.com
+host -t AAAA www.yourdomain.com
 
 # Check from external DNS
-dig @8.8.8.8 AAAA www.retaguide.com
+dig @8.8.8.8 AAAA www.yourdomain.com
 ```
 
 ## SSL Certificates with IPv6
@@ -172,10 +173,11 @@ dig @8.8.8.8 AAAA www.retaguide.com
 Certbot automatically handles both IPv4 and IPv6:
 
 ```bash
-sudo certbot --nginx -d retaguide.com -d www.retaguide.com
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 ```
 
 Certbot will:
+
 1. Validate domain ownership via both IPv4 and IPv6 (if AAAA records exist)
 2. Configure NGINX with `listen [::]:443 ssl http2;`
 3. Apply SSL to both protocols
@@ -210,17 +212,20 @@ If you don't have an IPv6 address:
 
 ### Issue: NGINX Not Listening on IPv6
 
-**Check NGINX config syntax:**
+#### Check NGINX config syntax
+
 ```bash
 sudo nginx -t
 ```
 
-**Verify listen directives include `::`:**
+#### Verify listen directives include `::`
+
 ```bash
-grep -n "listen" /etc/nginx/sites-available/retaguide.com
+grep -n "listen" /etc/nginx/sites-available/yourdomain.com
 ```
 
-**Restart NGINX:**
+#### Restart NGINX
+
 ```bash
 sudo systemctl restart nginx
 sudo ss -tlnp | grep nginx
@@ -228,13 +233,15 @@ sudo ss -tlnp | grep nginx
 
 ### Issue: Cannot Connect via IPv6
 
-**Check if IPv6 is disabled system-wide:**
+#### Check if IPv6 is disabled system-wide
+
 ```bash
 cat /proc/sys/net/ipv6/conf/all/disable_ipv6
 # Should be 0 (enabled)
 ```
 
-**If disabled (1), enable it:**
+#### If disabled (1), enable it
+
 ```bash
 sudo sysctl -w net.ipv6.conf.all.disable_ipv6=0
 sudo sysctl -w net.ipv6.conf.default.disable_ipv6=0
@@ -246,33 +253,38 @@ echo "net.ipv6.conf.default.disable_ipv6 = 0" | sudo tee -a /etc/sysctl.conf
 
 ### Issue: UFW Blocking IPv6
 
-**Check UFW IPv6 setting:**
+#### Check UFW IPv6 setting
+
 ```bash
 sudo cat /etc/default/ufw | grep IPV6
 ```
 
-**If IPV6=no, enable it:**
+#### If IPV6=no, enable it
+
 ```bash
 sudo sed -i 's/^IPV6=no/IPV6=yes/' /etc/default/ufw
 sudo ufw disable
 sudo ufw enable
 ```
 
-**Verify IPv6 rules:**
+#### Verify IPv6 rules
+
 ```bash
 sudo ip6tables -L -n
 ```
 
 ### Issue: DNS Not Resolving via IPv6
 
-**Check AAAA records:**
+#### Check AAAA records
+
 ```bash
-dig AAAA www.retaguide.com +short
+dig AAAA www.yourdomain.com +short
 ```
 
-**If empty, add AAAA records in your DNS provider**
+#### If empty, add AAAA records in your DNS provider
 
-**Test direct IP access:**
+#### Test direct IP access
+
 ```bash
 # Replace with your actual IPv6 address
 curl -6 -I http://[2603:xxxx:xxxx:xxxx::x]
@@ -282,14 +294,16 @@ curl -6 -I http://[2603:xxxx:xxxx:xxxx::x]
 
 If Certbot can't validate via IPv6:
 
-**Option 1: Temporarily disable IPv6 validation**
+#### Option 1: Temporarily disable IPv6 validation
+
 ```bash
-sudo certbot --nginx -d retaguide.com -d www.retaguide.com --preferred-challenges http
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com --preferred-challenges http
 ```
 
-**Option 2: Use DNS validation instead**
+#### Option 2: Use DNS validation instead
+
 ```bash
-sudo certbot --nginx -d retaguide.com -d www.retaguide.com --preferred-challenges dns
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com --preferred-challenges dns
 ```
 
 ## Testing IPv6 from Your Local Machine
@@ -301,21 +315,23 @@ sudo certbot --nginx -d retaguide.com -d www.retaguide.com --preferred-challenge
 curl -6 https://ipv6.google.com
 
 # Test your site
-curl -6 -I https://www.retaguide.com
+curl -6 -I https://www.yourdomain.com
 ```
 
 ### If You Don't Have IPv6 Connectivity
 
 Use online IPv6 testing tools:
-- https://ipv6-test.com/validate.php
-- https://www.whatismyip.com/ipv6-test/
-- https://test-ipv6.com/
+
+- <https://ipv6-test.com/validate.php>
+- <https://www.whatismyip.com/ipv6-test/>
+- <https://test-ipv6.com/>
 
 Or use a proxy:
+
 ```bash
 # Using an IPv6 proxy service
 ssh -D 8080 user@ipv6-server
-curl -x socks5h://localhost:8080 -6 http://www.retaguide.com
+curl -x socks5h://localhost:8080 -6 http://www.yourdomain.com
 ```
 
 ## Performance Considerations
@@ -323,6 +339,7 @@ curl -x socks5h://localhost:8080 -6 http://www.retaguide.com
 ### Prefer IPv4 or IPv6?
 
 Modern browsers prefer IPv6 when available (Happy Eyeballs - RFC 8305):
+
 1. Browser tries IPv6 first
 2. If IPv6 fails after ~300ms, falls back to IPv4
 3. Fastest connection wins
@@ -341,8 +358,9 @@ sudo ss -tn6 | grep :443 # IPv6 HTTPS
 ### NGINX Logging
 
 NGINX logs both IPv4 and IPv6 addresses:
+
 ```bash
-tail -f /var/log/nginx/retaguide.com_access.log
+tail -f /var/log/nginx/yourdomain.com_access.log
 
 # IPv4 example: 203.0.113.45 - - [...]
 # IPv6 example: 2001:db8::1 - - [...]
@@ -353,6 +371,7 @@ tail -f /var/log/nginx/retaguide.com_access.log
 ### Firewall Rules Apply to Both
 
 All UFW rules apply to both IPv4 and IPv6:
+
 ```bash
 ufw allow 80/tcp    # Opens port 80 on IPv4 AND IPv6
 ```
@@ -362,6 +381,7 @@ ufw allow 80/tcp    # Opens port 80 on IPv4 AND IPv6
 The fail2ban configuration works with both protocols. It will ban abusive IPs regardless of protocol.
 
 To verify:
+
 ```bash
 sudo fail2ban-client status nginx-http-auth
 # Shows both IPv4 and IPv6 bans
@@ -385,9 +405,10 @@ limit_req_zone $binary_remote_addr zone=one:10m rate=10r/s;
 ✅ **Azure NSG**: Rules apply to both IPv4 and IPv6  
 
 **Action Items**:
+
 1. ✓ NGINX and UFW already configured (provision script handles it)
 2. ✓ Verify IPv6 address exists: `ip -6 addr show eth0`
 3. Add AAAA records to DNS (if not already done)
-4. Test connectivity: `curl -6 https://www.retaguide.com`
+4. Test connectivity: `curl -6 https://www.yourdomain.com`
 
 Your site will automatically serve traffic over both IPv4 and IPv6 once DNS AAAA records are configured!

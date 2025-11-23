@@ -5,6 +5,7 @@
 ### What It Is
 
 When editing templates in **Appearance > Editor**, you may see warnings like:
+
 ```
 Block contains unexpected or invalid content
 ```
@@ -20,15 +21,18 @@ This is **usually safe to ignore** and occurs because:
 ### How to Fix
 
 **Option 1: Click "Attempt Block Recovery"**
+
 - WordPress will try to match the block to a known pattern
 - Usually works without losing content
 
 **Option 2: Clear the warning**
+
 - Click the `⋮` menu on the block
 - Select "Clear customizations"
 - Re-apply your changes
 
 **Option 3: Ignore it (safe)**
+
 - If the page displays correctly on the frontend
 - The warning doesn't affect functionality
 - It's just the editor being cautious
@@ -63,7 +67,7 @@ style="padding-top:var(--wp--preset--spacing--40)"
 
 ## MU Plugins Not Showing in Plugins Menu
 
-### This is Normal!
+### This is Normal
 
 Must-Use (MU) plugins **don't appear in the regular Plugins menu** by design.
 
@@ -76,6 +80,7 @@ Must-Use (MU) plugins **don't appear in the regular Plugins menu** by design.
 3. Click it to see MU plugins
 
 **Or check the URL directly:**
+
 ```
 https://www.yourdomain.com/wp-admin/plugins.php?plugin_status=mustuse
 ```
@@ -103,6 +108,7 @@ The AutoWP Security plugin automatically:
 ### Why MU Plugins?
 
 **Must-Use plugins:**
+
 - ✅ Load before regular plugins (priority)
 - ✅ Cannot be accidentally disabled
 - ✅ Perfect for security features
@@ -112,16 +118,19 @@ The AutoWP Security plugin automatically:
 ### Verify MU Plugin is Working
 
 **Test login limiting:**
+
 1. Open incognito/private browser
 2. Try to login with wrong password 5 times
 3. You should be locked out for 15 minutes
 
 **Test security headers:**
+
 ```bash
 curl -I https://www.yourdomain.com
 ```
 
 Look for:
+
 ```
 X-Frame-Options: SAMEORIGIN
 X-Content-Type-Options: nosniff
@@ -129,6 +138,7 @@ X-XSS-Protection: 1; mode=block
 ```
 
 **Test XML-RPC disabled:**
+
 ```bash
 curl -X POST https://www.yourdomain.com/xmlrpc.php
 ```
@@ -152,18 +162,21 @@ If `wp-config.php` has permissions like `644` or `664`, other users on the serve
 ### Fix It
 
 **Option 1: Run the deploy script (fixes automatically)**
+
 ```bash
 cd ~/autowp-lemp/provision
 sudo ./deploy-theme.sh
 ```
 
 **Option 2: Manual fix**
+
 ```bash
 sudo chmod 600 /var/www/yourdomain.com/wp-config.php
 sudo chown www-data:www-data /var/www/yourdomain.com/wp-config.php
 ```
 
 **Option 3: Run permissions script**
+
 ```bash
 cd ~/autowp-lemp/provision
 sudo ./set-permissions.sh /var/www/yourdomain.com
@@ -176,11 +189,13 @@ ls -la /var/www/yourdomain.com/wp-config.php
 ```
 
 Should show:
+
 ```
 -rw------- 1 www-data www-data ... wp-config.php
 ```
 
 The `-rw-------` (600) means:
+
 - Owner (www-data) can read and write
 - Group cannot access
 - Others cannot access
@@ -188,6 +203,7 @@ The `-rw-------` (600) means:
 ### Why It Happens
 
 The warning appears if:
+
 1. File was created before permissions script ran
 2. FTP/file manager changed permissions
 3. Deployment didn't set permissions
@@ -289,11 +305,13 @@ sudo tail -f /var/log/php8.2-fpm.log
 ### Check WordPress Debug Log
 
 Enable debug mode in wp-config.php:
+
 ```bash
 sudo nano /var/www/yourdomain.com/wp-config.php
 ```
 
 Add before "That's all":
+
 ```php
 define('WP_DEBUG', true);
 define('WP_DEBUG_LOG', true);
@@ -301,6 +319,7 @@ define('WP_DEBUG_DISPLAY', false);
 ```
 
 View logs:
+
 ```bash
 tail -f /var/www/yourdomain.com/wp-content/debug.log
 ```
@@ -317,10 +336,11 @@ sudo systemctl reload nginx
 ### Verify Theme Files Exist
 
 ```bash
-ls -la /var/www/yourdomain.com/wp-content/themes/retaguide/
+ls -la /var/www/yourdomain.com/wp-content/themes/autowp-theme/
 ls -la /var/www/yourdomain.com/wp-content/mu-plugins/
 ```
 
 Should see:
+
 - Theme: style.css, functions.php, theme.json, templates/, parts/, inc/, assets/
-- MU: retaguide-security.php
+- MU: autowp-security.php

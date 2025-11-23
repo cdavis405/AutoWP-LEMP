@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #############################################################################
-# Deploy RetaGuide Theme and MU Plugins
+# Deploy AutoWP Theme and MU Plugins
 #############################################################################
 # Purpose: Copy custom theme and MU plugins from repo to WordPress
 # Usage: sudo ./deploy-theme.sh
@@ -42,8 +42,8 @@ fi
 # Load environment variables
 if [ -f .env ]; then
     source .env
-elif [ -f /root/retasite/provision/.env ]; then
-    source /root/retasite/provision/.env
+elif [ -f /root/autowp-lemp/provision/.env ]; then
+    source /root/autowp-lemp/provision/.env
 else
     log_error "Cannot find .env file. Please ensure it exists."
     exit 1
@@ -59,7 +59,7 @@ WEB_ROOT="/var/www/${DOMAIN}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
-log_info "Deploying RetaGuide theme and plugins..."
+log_info "Deploying AutoWP theme and plugins..."
 log_info "Web Root: $WEB_ROOT"
 log_info "Repo Root: $REPO_ROOT"
 
@@ -76,48 +76,48 @@ mkdir -p $WEB_ROOT/wp-content/mu-plugins
 mkdir -p $WEB_ROOT/wp-content/themes
 
 # Deploy theme
-if [ -d "$REPO_ROOT/wp-content/themes/retaguide" ]; then
-    log_info "Deploying RetaGuide theme..."
+if [ -d "$REPO_ROOT/wp-content/themes/autowp-theme" ]; then
+    log_info "Deploying AutoWP theme..."
     
     # Backup existing theme if it exists
-    if [ -d "$WEB_ROOT/wp-content/themes/retaguide" ]; then
-        BACKUP_DIR="$WEB_ROOT/wp-content/themes/retaguide.backup-$(date +%Y%m%d-%H%M%S)"
+    if [ -d "$WEB_ROOT/wp-content/themes/autowp-theme" ]; then
+        BACKUP_DIR="$WEB_ROOT/wp-content/themes/autowp-theme.backup-$(date +%Y%m%d-%H%M%S)"
         log_info "Backing up existing theme to: $BACKUP_DIR"
-        mv "$WEB_ROOT/wp-content/themes/retaguide" "$BACKUP_DIR"
+        mv "$WEB_ROOT/wp-content/themes/autowp-theme" "$BACKUP_DIR"
     fi
     
     # Copy theme
-    cp -r "$REPO_ROOT/wp-content/themes/retaguide" $WEB_ROOT/wp-content/themes/
+    cp -r "$REPO_ROOT/wp-content/themes/autowp-theme" $WEB_ROOT/wp-content/themes/
     log_info "✓ Theme deployed"
 else
-    log_error "RetaGuide theme not found at: $REPO_ROOT/wp-content/themes/retaguide"
+    log_error "AutoWP theme not found at: $REPO_ROOT/wp-content/themes/autowp-theme"
     exit 1
 fi
 
 # Deploy MU plugin
-if [ -f "$REPO_ROOT/wp-content/mu-plugins/retaguide-security.php" ]; then
+if [ -f "$REPO_ROOT/wp-content/mu-plugins/autowp-security.php" ]; then
     log_info "Deploying MU security plugin..."
     
     # Backup existing plugin if it exists
-    if [ -f "$WEB_ROOT/wp-content/mu-plugins/retaguide-security.php" ]; then
-        BACKUP_FILE="$WEB_ROOT/wp-content/mu-plugins/retaguide-security.php.backup-$(date +%Y%m%d-%H%M%S)"
+    if [ -f "$WEB_ROOT/wp-content/mu-plugins/autowp-security.php" ]; then
+        BACKUP_FILE="$WEB_ROOT/wp-content/mu-plugins/autowp-security.php.backup-$(date +%Y%m%d-%H%M%S)"
         log_info "Backing up existing plugin to: $BACKUP_FILE"
-        mv "$WEB_ROOT/wp-content/mu-plugins/retaguide-security.php" "$BACKUP_FILE"
+        mv "$WEB_ROOT/wp-content/mu-plugins/autowp-security.php" "$BACKUP_FILE"
     fi
     
     # Copy plugin
-    cp "$REPO_ROOT/wp-content/mu-plugins/retaguide-security.php" $WEB_ROOT/wp-content/mu-plugins/
+    cp "$REPO_ROOT/wp-content/mu-plugins/autowp-security.php" $WEB_ROOT/wp-content/mu-plugins/
     log_info "✓ MU plugin deployed"
 else
-    log_warn "MU security plugin not found at: $REPO_ROOT/wp-content/mu-plugins/retaguide-security.php"
+    log_warn "MU security plugin not found at: $REPO_ROOT/wp-content/mu-plugins/autowp-security.php"
 fi
 
 # Set proper permissions
 log_info "Setting file permissions..."
-chown -R www-data:www-data $WEB_ROOT/wp-content/themes/retaguide
+chown -R www-data:www-data $WEB_ROOT/wp-content/themes/autowp-theme
 chown -R www-data:www-data $WEB_ROOT/wp-content/mu-plugins
-find $WEB_ROOT/wp-content/themes/retaguide -type d -exec chmod 755 {} \;
-find $WEB_ROOT/wp-content/themes/retaguide -type f -exec chmod 644 {} \;
+find $WEB_ROOT/wp-content/themes/autowp-theme -type d -exec chmod 755 {} \;
+find $WEB_ROOT/wp-content/themes/autowp-theme -type f -exec chmod 644 {} \;
 find $WEB_ROOT/wp-content/mu-plugins -type d -exec chmod 755 {} \;
 find $WEB_ROOT/wp-content/mu-plugins -type f -exec chmod 644 {} \;
 
@@ -141,15 +141,15 @@ if wp core is-installed --allow-root 2>/dev/null; then
     CURRENT_THEME=$(wp theme list --status=active --field=name --allow-root 2>/dev/null || echo "unknown")
     log_info "Current active theme: $CURRENT_THEME"
     
-    if [ "$CURRENT_THEME" != "retaguide" ]; then
+    if [ "$CURRENT_THEME" != "autowp-theme" ]; then
         # Activate theme
-        if wp theme activate retaguide --allow-root 2>/dev/null; then
-            log_info "✓ RetaGuide theme activated"
+        if wp theme activate autowp-theme --allow-root 2>/dev/null; then
+            log_info "✓ AutoWP theme activated"
         else
             log_warn "Could not activate theme. You may need to activate it manually from WordPress admin."
         fi
     else
-        log_info "✓ RetaGuide theme already active"
+        log_info "✓ AutoWP theme already active"
     fi
     
     # Flush rewrite rules
@@ -166,7 +166,7 @@ else
     log_info ""
     log_info "After installing WordPress, activate the theme with:"
     log_info "  cd $WEB_ROOT"
-    log_info "  sudo -u www-data wp theme activate retaguide"
+    log_info "  sudo -u www-data wp theme activate autowp-theme"
 fi
 
 log_info ""
@@ -174,13 +174,13 @@ log_info "========================================="
 log_info "Deployment complete!"
 log_info "========================================="
 log_info ""
-log_info "Theme location: $WEB_ROOT/wp-content/themes/retaguide"
-log_info "MU plugin location: $WEB_ROOT/wp-content/mu-plugins/retaguide-security.php"
+log_info "Theme location: $WEB_ROOT/wp-content/themes/autowp-theme"
+log_info "MU plugin location: $WEB_ROOT/wp-content/mu-plugins/autowp-security.php"
 log_info ""
 log_info "Next steps:"
 log_info "1. Go to WordPress admin: https://www.${DOMAIN}/wp-admin"
 log_info "2. Navigate to Appearance > Themes"
-log_info "3. Activate 'RetaGuide' theme if not already active"
+log_info "3. Activate 'AutoWP' theme if not already active"
 log_info "4. Check Plugins > Must-Use to verify security plugin loaded"
 log_info ""
 log_info "✓ Done!"

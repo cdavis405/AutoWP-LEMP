@@ -1,9 +1,8 @@
-<?php
 /**
- * Plugin Name: RetaGuide Security
- * Description: Security hardening for RetaGuide WordPress site
+ * Plugin Name: AutoWP Security
+ * Description: Security hardening for AutoWP WordPress site
  * Version: 1.0.0
- * Author: RetaGuide Team
+ * Author: AutoWP Team
  * Network: true
  */
 
@@ -65,7 +64,7 @@ add_filter('rest_authentication_errors', function($result) {
 /**
  * Add login attempt tracking
  */
-class RetaGuide_Login_Security {
+class AutoWP_Login_Security {
     private $max_attempts = 5;
     private $lockout_duration = 900; // 15 minutes
     
@@ -142,11 +141,11 @@ class RetaGuide_Login_Security {
         );
         
         // Log to custom table or file
-        error_log('[RetaGuide Security] ' . json_encode($log_entry));
+        error_log('[AutoWP Security] ' . json_encode($log_entry));
     }
 }
 
-new RetaGuide_Login_Security();
+new AutoWP_Login_Security();
 
 /**
  * Add security headers
@@ -233,7 +232,7 @@ add_action('admin_notices', function() {
 /**
  * Database backup helper function
  */
-function retaguide_backup_database() {
+function autowp_backup_database() {
     if (!current_user_can('manage_options')) {
         return false;
     }
@@ -244,7 +243,7 @@ function retaguide_backup_database() {
         wp_mkdir_p($backup_dir);
     }
     
-    $filename = 'retaguide-db-' . date('Y-m-d-H-i-s') . '.sql';
+    $filename = 'autowp-db-' . date('Y-m-d-H-i-s') . '.sql';
     $filepath = $backup_dir . '/' . $filename;
     
     $command = sprintf(
@@ -269,8 +268,8 @@ function retaguide_backup_database() {
 /**
  * Schedule daily database backups
  */
-add_action('retaguide_daily_backup', 'retaguide_backup_database');
+add_action('autowp_daily_backup', 'autowp_backup_database');
 
-if (!wp_next_scheduled('retaguide_daily_backup')) {
-    wp_schedule_event(time(), 'daily', 'retaguide_daily_backup');
+if (!wp_next_scheduled('autowp_daily_backup')) {
+    wp_schedule_event(time(), 'daily', 'autowp_daily_backup');
 }

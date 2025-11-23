@@ -368,18 +368,18 @@ log_info "Installing custom theme and plugins..."
 mkdir -p $WEB_ROOT/wp-content/mu-plugins
 
 # Check if theme exists in repo
-if [ -d "$REPO_ROOT/wp-content/themes/retaguide" ]; then
-    log_info "Copying RetaGuide theme..."
-    cp -r "$REPO_ROOT/wp-content/themes/retaguide" $WEB_ROOT/wp-content/themes/
+if [ -d "$REPO_ROOT/wp-content/themes/autowp-theme" ]; then
+    log_info "Copying AutoWP theme..."
+    cp -r "$REPO_ROOT/wp-content/themes/autowp-theme" $WEB_ROOT/wp-content/themes/
     log_info "✓ Theme copied"
 else
-    log_warn "AutoWP theme not found in repository at: $REPO_ROOT/wp-content/themes/retaguide"
+    log_warn "AutoWP theme not found in repository at: $REPO_ROOT/wp-content/themes/autowp-theme"
 fi
 
 # Check if MU plugin exists in repo
-if [ -f "$REPO_ROOT/wp-content/mu-plugins/retaguide-security.php" ]; then
+if [ -f "$REPO_ROOT/wp-content/mu-plugins/autowp-security.php" ]; then
     log_info "Copying MU security plugin..."
-    cp "$REPO_ROOT/wp-content/mu-plugins/retaguide-security.php" $WEB_ROOT/wp-content/mu-plugins/
+    cp "$REPO_ROOT/wp-content/mu-plugins/autowp-security.php" $WEB_ROOT/wp-content/mu-plugins/
     log_info "✓ MU plugin copied"
 else
     log_warn "MU security plugin not found in repository at: $REPO_ROOT/wp-content/mu-plugins/"
@@ -682,7 +682,7 @@ log_info "   sudo wp core install --url=http://www.${DOMAIN} --title='AutoWP' --
 log_info ""
 log_info "5. Activate AutoWP theme:"
 log_info "   cd $WEB_ROOT"
-log_info "   sudo -u www-data wp theme activate retaguide"
+log_info "   sudo -u www-data wp theme activate autowp-theme"
 log_info "   sudo -u www-data wp rewrite flush"
 log_info ""
 log_info "6. Credentials saved to: $CREDENTIALS_FILE"

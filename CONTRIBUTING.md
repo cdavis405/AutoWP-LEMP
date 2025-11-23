@@ -1,6 +1,6 @@
-# Contributing to RetaGuide
+# Contributing to AutoWP
 
-Thank you for your interest in contributing to RetaGuide! This document provides guidelines for contributing to the project.
+Thank you for your interest in contributing to AutoWP! This document provides guidelines for contributing to the project.
 
 ## Code of Conduct
 
@@ -54,34 +54,34 @@ This project adheres to a code of conduct that values respect, professionalism, 
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/retasite.git
-cd retasite
+git clone https://github.com/yourusername/autowp-lemp.git
+cd autowp-lemp
 
 # Install dependencies
 composer install  # If using Composer
 npm install      # If using npm
 
 # Copy theme to WordPress
-cp -r wp-content/themes/retaguide /path/to/wordpress/wp-content/themes/
+cp -r wp-content/themes/autowp-theme /path/to/wordpress/wp-content/themes/
 ```
 
 ### Testing
 
 ```bash
 # PHP syntax check
-find wp-content/themes/retaguide -name "*.php" -exec php -l {} \;
+find wp-content/themes/autowp-theme -name "*.php" -exec php -l {} \;
 
 # PHPCS
-phpcs --standard=phpcs.xml wp-content/themes/retaguide/
+phpcs --standard=phpcs.xml wp-content/themes/autowp-theme/
 
 # WordPress Coding Standards
-phpcs --standard=WordPress wp-content/themes/retaguide/
+phpcs --standard=WordPress wp-content/themes/autowp-theme/
 ```
 
 ## Project Structure
 
 ```
-wp-content/themes/retaguide/
+wp-content/themes/autowp-theme/
 ├── assets/          # CSS, JS, images
 ├── inc/             # PHP includes
 ├── parts/           # Template parts
@@ -103,6 +103,7 @@ We welcome feature requests! Please:
 ## Questions?
 
 If you have questions, feel free to:
+
 - Open a GitHub Discussion
 - Create an issue with the "question" label
 - Contact the maintainers
@@ -111,4 +112,4 @@ If you have questions, feel free to:
 
 By contributing, you agree that your contributions will be licensed under the GNU General Public License v2 or later.
 
-Thank you for contributing to RetaGuide!
+Thank you for contributing to AutoWP!

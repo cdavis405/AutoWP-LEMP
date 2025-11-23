@@ -47,8 +47,8 @@ fi
 # Load environment variables
 if [ -f .env ]; then
     source .env
-elif [ -f /root/retasite/provision/.env ]; then
-    source /root/retasite/provision/.env
+elif [ -f /root/autowp-lemp/provision/.env ]; then
+    source /root/autowp-lemp/provision/.env
 else
     log_error "Cannot find .env file. Please ensure it exists."
     exit 1

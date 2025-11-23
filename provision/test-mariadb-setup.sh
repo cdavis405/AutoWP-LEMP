@@ -54,8 +54,8 @@ if ! docker info &> /dev/null; then
 fi
 
 # Test parameters
-DB_NAME="retaguide_wp"
-DB_USER="retaguide_user"
+DB_NAME="autowp_wp"
+DB_USER="autowp_user"
 DB_PASSWORD="TestDBPass123!"
 CONTAINER_NAME="mariadb-provision-test"
 
@@ -159,12 +159,12 @@ log_info "Test 6: Verifying database and user creation..."
 if echo "$MYSQL_CMD" | grep -q "admin_"; then
     ADMIN_USER="admin_${DB_USER}"
     docker exec $CONTAINER_NAME mysql -u${ADMIN_USER} -p${DB_PASSWORD} \
-        -e "SHOW DATABASES LIKE 'retaguide%';"
+        -e "SHOW DATABASES LIKE 'autowp%';"
     docker exec $CONTAINER_NAME mysql -u${ADMIN_USER} -p${DB_PASSWORD} \
         -e "SELECT User,Host FROM mysql.user WHERE User='${DB_USER}';"
 else
     docker exec $CONTAINER_NAME mysql -uroot -p${DB_PASSWORD} \
-        -e "SHOW DATABASES LIKE 'retaguide%';"
+        -e "SHOW DATABASES LIKE 'autowp%';"
     docker exec $CONTAINER_NAME mysql -uroot -p${DB_PASSWORD} \
         -e "SELECT User,Host FROM mysql.user WHERE User='${DB_USER}';"
 fi

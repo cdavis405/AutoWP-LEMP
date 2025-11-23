@@ -19,11 +19,11 @@ fi
 REMOTE_USER="${AZURE_VM_USER:-azureuser}"
 REMOTE_HOST="${AZURE_VM_IP}"
 REMOTE_PATH="/var/www/${DOMAIN}"
-LOCAL_THEME="wp-content/themes/retaguide"
+LOCAL_THEME="wp-content/themes/autowp-theme"
 LOCAL_MU_PLUGINS="wp-content/mu-plugins"
 
 echo "═══════════════════════════════════════════"
-echo "  RetaGuide Quick Deploy"
+echo "  AutoWP Quick Deploy"
 echo "═══════════════════════════════════════════"
 echo "Remote: ${REMOTE_USER}@${REMOTE_HOST}"
 echo "Path: ${REMOTE_PATH}"
@@ -39,8 +39,8 @@ fi
 # Create backup on server
 echo "Creating backup on server..."
 ssh ${REMOTE_USER}@${REMOTE_HOST} << EOF
-    sudo mkdir -p /var/backups/retaguide
-    sudo tar -czf /var/backups/retaguide/theme-backup-\$(date +%Y%m%d_%H%M%S).tar.gz -C ${REMOTE_PATH}/wp-content/themes retaguide
+    sudo mkdir -p /var/backups/autowp
+    sudo tar -czf /var/backups/autowp/theme-backup-\$(date +%Y%m%d_%H%M%S).tar.gz -C ${REMOTE_PATH}/wp-content/themes autowp-theme
     echo "Backup created successfully"
 EOF
 
@@ -53,7 +53,7 @@ rsync -avz --delete \
     --exclude '*.log' \
     --progress \
     ${LOCAL_THEME}/ \
-    ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/wp-content/themes/retaguide/
+    ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/wp-content/themes/autowp-theme/
 
 # Deploy MU plugins
 echo "Deploying MU plugins..."
@@ -65,10 +65,10 @@ rsync -avz \
 # Set permissions and clear cache
 echo "Setting permissions and clearing cache..."
 ssh ${REMOTE_USER}@${REMOTE_HOST} << EOF
-    sudo chown -R www-data:www-data ${REMOTE_PATH}/wp-content/themes/retaguide
+    sudo chown -R www-data:www-data ${REMOTE_PATH}/wp-content/themes/autowp-theme
     sudo chown -R www-data:www-data ${REMOTE_PATH}/wp-content/mu-plugins
-    sudo find ${REMOTE_PATH}/wp-content/themes/retaguide -type d -exec chmod 755 {} \;
-    sudo find ${REMOTE_PATH}/wp-content/themes/retaguide -type f -exec chmod 644 {} \;
+    sudo find ${REMOTE_PATH}/wp-content/themes/autowp-theme -type d -exec chmod 755 {} \;
+    sudo find ${REMOTE_PATH}/wp-content/themes/autowp-theme -type f -exec chmod 644 {} \;
     
     # Clear WordPress cache
     sudo -u www-data wp cache flush --path=${REMOTE_PATH} --allow-root || true

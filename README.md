@@ -1,11 +1,11 @@
-# Automatic WordPress Installer - LEMP Stack
+# AutoWP - Automatic WordPress Installer & LEMP Stack
 
-A comprehensive, production-ready WordPress site installer featuring a high-performance LEMP stack, integrated disclaimer system, and full DevOps deployment pipeline.
+A comprehensive, production-ready WordPress site installer featuring a high-performance LEMP stack, security hardening, and full DevOps deployment pipeline. Designed to be generic and adaptable for any domain.
 
 ## 🚀 Recent Updates
 
 - ✅ **IPv6 Support**: Fully configured NGINX and firewall for dual-stack (IPv4 + IPv6)
-- ✅ **WWW Enforcement**: All traffic redirects to www.yourdomain.com (prevents session splitting)
+- ✅ **WWW Enforcement**: All traffic redirects to <www.yourdomain.com> (prevents session splitting)
 - ✅ **Idempotent Provisioning**: Safe to re-run provision.sh multiple times
 - ✅ **Ubuntu 22.04 Ready**: Handles unix_socket authentication automatically
 - ✅ **Comprehensive Documentation**: 12 detailed guides in `provision/` directory
@@ -13,26 +13,30 @@ A comprehensive, production-ready WordPress site installer featuring a high-perf
 ## 🎯 Features
 
 ### Content Management
-- **News Posts**: Standard WordPress posts with Categories (Research, Safety, Regulatory, Market, Reviews) and free-form Tags
-- **Guides Custom Post Type**: Structured guides with custom taxonomies (Guide Level, Guide Topic)
-- **Disclaimer System**: Centrally managed, auto-prepended to all content with per-post overrides
+
+- **News Posts**: Standard WordPress posts with pre-configured Categories
+- **Guides Custom Post Type**: Structured guides with custom taxonomies
+- **Disclaimer System**: Centrally managed, auto-prepended to all content with per-post overrides (optional)
 - **Pinned Navigation**: Dynamic right-aligned nav items manageable via admin UI
-- **Block Patterns**: Pre-built content patterns for News articles, Guides (Protocol, FAQ, Overview), and Callouts (Safety, Takeaways, Reading)
+- **Block Patterns**: Pre-built content patterns for articles and guides
 
 ### Design & UX
+
 - **Clean Theme**: Clean, professional design with customizable color palette
 - **Fully Responsive**: Mobile-first design with accessible components
 - **Block Theme**: Modern WordPress full site editing with theme.json
 - **WCAG 2.1 AA**: Accessibility-focused with proper focus states, ARIA labels, and keyboard navigation
 
 ### SEO & Performance
-- **SEO Optimized**: Open Graph, Twitter Cards, Schema.org markup (Article, HowTo, FAQ)
+
+- **SEO Optimized**: Open Graph, Twitter Cards, Schema.org markup
 - **Breadcrumbs**: Structured breadcrumbs with schema.org markup
 - **XML Sitemap**: Auto-generated WordPress sitemap
 - **Performance**: Lazy loading, WebP support, FastCGI caching, optimized assets
 - **Core Web Vitals**: Optimized for LCP, CLS, and FID metrics
 
 ### Security
+
 - **Hardened wp-config.php**: Security constants and salts
 - **MU Plugin**: Login attempt limiting, security headers, XML-RPC disabled
 - **File Permissions**: Proper 755/644 permissions with 600 for wp-config.php
@@ -40,6 +44,7 @@ A comprehensive, production-ready WordPress site installer featuring a high-perf
 - **Fail2ban**: Protection against brute force attacks
 
 ### DevOps
+
 - **One-Command Setup**: Automated provisioning script for Ubuntu 22.04
 - **NGINX + PHP-FPM**: High-performance LEMP stack with PHP 8.2
 - **TLS/SSL**: Automated certificate setup with Certbot
@@ -72,6 +77,7 @@ nano .env
 ```
 
 Update the following variables:
+
 - `DOMAIN`: Your domain name (e.g., yourdomain.com)
 - `DB_PASSWORD`: Secure database password
 - `WP_ADMIN_USER`: WordPress admin username
@@ -86,6 +92,7 @@ sudo ./provision.sh
 ```
 
 This script will:
+
 - Update system packages
 - Install NGINX, PHP 8.2, MariaDB
 - Create WordPress database
@@ -101,6 +108,7 @@ This script will:
 Point your domain's A and AAAA records to your server's IP addresses:
 
 **IPv4 (Required):**
+
 ```
 Type: A
 Name: @
@@ -114,6 +122,7 @@ TTL: 3600
 ```
 
 **IPv6 (Optional, if your VM has IPv6):**
+
 ```
 Type: AAAA
 Name: @
@@ -127,6 +136,7 @@ TTL: 3600
 ```
 
 **Check your IPv6 address** (if applicable):
+
 ```bash
 ip -6 addr show eth0 | grep inet6
 ```
@@ -146,12 +156,14 @@ Follow the prompts. Certbot will automatically configure NGINX for HTTPS.
 **Important**: After Certbot completes, configure NGINX to enforce www subdomain for HTTPS:
 
 **Option 1: Automated (Recommended)**
+
 ```bash
 cd ~/autowp-lemp/provision
 sudo ./configure-nginx-https-www.sh
 ```
 
 **Option 2: Manual**
+
 ```bash
 sudo nano /etc/nginx/sites-available/yourdomain.com
 ```
@@ -181,7 +193,7 @@ sudo -u www-data wp core install \
 
 ```bash
 # Copy theme to WordPress
-sudo cp -r /path/to/autowp-lemp/wp-content/themes/retaguide /var/www/yourdomain.com/wp-content/themes/
+sudo cp -r /path/to/autowp-lemp/wp-content/themes/autowp-theme /var/www/yourdomain.com/wp-content/themes/
 
 # Copy MU plugins
 sudo cp -r /path/to/autowp-lemp/wp-content/mu-plugins/* /var/www/yourdomain.com/wp-content/mu-plugins/
@@ -191,7 +203,7 @@ sudo ./set-permissions.sh /var/www/yourdomain.com
 
 # Activate theme via WP-CLI
 cd /var/www/yourdomain.com
-sudo wp theme activate retaguide --allow-root
+sudo wp theme activate autowp-theme --allow-root
 
 # Flush rewrite rules
 sudo wp rewrite flush --allow-root
@@ -222,7 +234,7 @@ The `provision/` directory contains comprehensive guides for setup and troublesh
 
 - ✅ **Idempotent**: Safe to run multiple times, skips existing configurations
 - ✅ **IPv6 Ready**: Automatically configures NGINX and firewall for IPv6
-- ✅ **WWW Enforcement**: All traffic redirects to www.yourdomain.com
+- ✅ **WWW Enforcement**: All traffic redirects to <www.yourdomain.com>
 - ✅ **Ubuntu 22.04**: Handles unix_socket authentication automatically
 - ✅ **Modern Security**: Fail2ban, UFW, security headers, restricted permissions
 
@@ -245,6 +257,7 @@ The `provision/` directory contains comprehensive guides for setup and troublesh
 4. Click **Save Changes**
 
 Per-post override:
+
 - Edit any post/guide
 - Find "Disclaimer Settings" meta box (sidebar)
 - Check "Hide global disclaimer" OR add custom disclaimer text
@@ -252,16 +265,18 @@ Per-post override:
 ### Creating Content
 
 #### News Post
+
 1. **Posts > Add New**
-2. Select Category (Research, Safety, etc.)
+2. Select Category
 3. Add Tags
 4. Use "Standard Article" pattern (Block Patterns panel)
 5. Publish
 
 #### Guide
+
 1. **Guides > Add New**
-2. Select Guide Level (Beginner, Protocol, Safety)
-3. Select Guide Topic(s) (Mechanism, Dosing, etc.)
+2. Select Guide Level
+3. Select Guide Topic(s)
 4. Fill "Guide Details" meta box (Last Reviewed, Version, Reading Time)
 5. Use guide patterns (Protocol, FAQ, or Overview)
 6. Publish
@@ -269,6 +284,7 @@ Per-post override:
 ### Block Patterns
 
 Access patterns from the Block Inserter (+):
+
 - **News**: Standard Article
 - **Guides**: Step-by-step Protocol, FAQ Guide, Overview Guide
 - **Callouts**: Safety Notice, Key Takeaways, Further Reading
@@ -291,6 +307,7 @@ git push origin main
 ```
 
 The workflow will:
+
 - Run PHP syntax checks
 - Build theme assets
 - Create backup on server
@@ -306,17 +323,17 @@ The workflow will:
 rsync -avz --delete \
   --exclude '.git' \
   --exclude 'node_modules' \
-  wp-content/themes/retaguide/ \
-  user@yourdomain.com:/var/www/yourdomain.com/wp-content/themes/retaguide/
+  wp-content/themes/autowp-theme/ \
+  user@yourdomain.com:/var/www/yourdomain.com/wp-content/themes/autowp-theme/
 
 # SSH to server
 ssh user@yourdomain.com
 
 # Set permissions
 cd /var/www/yourdomain.com
-sudo chown -R www-data:www-data wp-content/themes/retaguide
-sudo find wp-content/themes/retaguide -type d -exec chmod 755 {} \;
-sudo find wp-content/themes/retaguide -type f -exec chmod 644 {} \;
+sudo chown -R www-data:www-data wp-content/themes/autowp-theme
+sudo find wp-content/themes/autowp-theme -type d -exec chmod 755 {} \;
+sudo find wp-content/themes/autowp-theme -type f -exec chmod 644 {} \;
 
 # Clear cache
 sudo wp cache flush --allow-root
@@ -326,17 +343,19 @@ sudo systemctl reload php8.2-fpm
 ### Rollback
 
 #### Automated (GitHub Actions)
+
 1. Go to **Actions** tab in GitHub
 2. Select **Deploy AutoWP** workflow
 3. Click **Run workflow** > Select **rollback** job
 
 #### Manual
+
 ```bash
 ssh user@yourdomain.com
 cd /var/backups/autowp
 ls -lt theme-backup-*.tar.gz  # List backups
 sudo tar -xzf theme-backup-TIMESTAMP.tar.gz -C /var/www/yourdomain.com/wp-content/themes/
-sudo chown -R www-data:www-data /var/www/yourdomain.com/wp-content/themes/retaguide
+sudo chown -R www-data:www-data /var/www/yourdomain.com/wp-content/themes/autowp-theme
 sudo wp cache flush --path=/var/www/yourdomain.com --allow-root
 ```
 
@@ -359,6 +378,7 @@ sudo wp plugin update --all --allow-root
 ### Database Backup
 
 Manual backup:
+
 ```bash
 sudo wp db export /var/backups/autowp/db-backup-$(date +%Y%m%d).sql --allow-root
 gzip /var/backups/autowp/db-backup-*.sql
@@ -385,6 +405,7 @@ tail -f /var/www/yourdomain.com/wp-content/debug.log
 ### Renew SSL Certificate
 
 Certbot auto-renews. Manual renewal:
+
 ```bash
 sudo certbot renew
 sudo systemctl reload nginx
@@ -416,9 +437,9 @@ autowp-lemp/
 │   └── QUICK_REFERENCE.md                 # Quick command reference
 ├── wp-content/
 │   ├── mu-plugins/
-│   │   └── retaguide-security.php  # Security MU plugin
+│   │   └── autowp-security.php  # Security MU plugin
 │   └── themes/
-│       └── retaguide/
+│       └── autowp-theme/
 │           ├── assets/
 │           │   ├── css/
 │           │   │   ├── custom.css
@@ -439,7 +460,7 @@ autowp-lemp/
 │           │   └── theme-settings.php
 │           ├── parts/
 │           │   ├── header.html
-│           │   └── footer.html
+│           │   ├── footer.html
 │           ├── templates/
 │           │   ├── archive.html
 │           │   ├── home.html
@@ -495,6 +516,7 @@ autowp-lemp/
 ## 🐛 Troubleshooting
 
 ### Site not loading
+
 ```bash
 # Check NGINX status
 sudo systemctl status nginx
@@ -510,6 +532,7 @@ sudo tail -n 50 /var/log/nginx/yourdomain.com_error.log
 ```
 
 ### White screen of death
+
 ```bash
 # Enable WordPress debug mode
 sudo nano /var/www/yourdomain.com/wp-config.php
@@ -524,6 +547,7 @@ tail -f /var/www/yourdomain.com/wp-content/debug.log
 ```
 
 ### Database connection errors
+
 ```bash
 # Check MariaDB status
 sudo systemctl status mariadb
@@ -542,12 +566,14 @@ sudo cat /var/www/yourdomain.com/wp-config.php | grep DB_
 **Cause**: Modern MariaDB versions (10.4+) use different authentication methods and don't allow direct modification of the `mysql.user` view. Some installations use `unix_socket` authentication for root by default.
 
 **Solution**: The provisioning script automatically handles this by:
+
 1. Detecting the root authentication method
 2. Using `ALTER USER` for modern MariaDB versions
 3. Creating a separate admin user if unix_socket is detected
 4. Falling back to compatible UPDATE methods if needed
 
 **Manual fix** (if you need to set up authentication manually):
+
 ```bash
 # Check current root authentication method
 sudo mysql -e "SELECT User,Host,plugin FROM mysql.user WHERE User='root';"
@@ -560,19 +586,23 @@ sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'YourPassword'; FLUSH
 ```
 
 **Testing**: You can test the MariaDB setup logic before running provisioning:
+
 ```bash
 cd provision
 ./test-mariadb-setup.sh
 ```
+
 This runs a Docker container with MariaDB and tests all authentication scenarios.
 
 ### Permission issues
+
 ```bash
-cd /workspaces/Retasite/provision
+cd /workspaces/AutoWP-LEMP/provision
 sudo ./set-permissions.sh /var/www/yourdomain.com
 ```
 
 ### SSL certificate issues
+
 ```bash
 # Check certificate status
 sudo certbot certificates
@@ -587,13 +617,15 @@ sudo certbot renew --force-renewal
 ## 📞 Support
 
 ### Documentation
-- WordPress Codex: https://codex.wordpress.org/
-- Block Editor Handbook: https://developer.wordpress.org/block-editor/
-- Theme Development: https://developer.wordpress.org/themes/
+
+- WordPress Codex: <https://codex.wordpress.org/>
+- Block Editor Handbook: <https://developer.wordpress.org/block-editor/>
+- Theme Development: <https://developer.wordpress.org/themes/>
 
 ### Community
-- WordPress Support Forums: https://wordpress.org/support/
-- WordPress Stack Exchange: https://wordpress.stackexchange.com/
+
+- WordPress Support Forums: <https://wordpress.org/support/>
+- WordPress Stack Exchange: <https://wordpress.stackexchange.com/>
 
 ## 📝 License
 

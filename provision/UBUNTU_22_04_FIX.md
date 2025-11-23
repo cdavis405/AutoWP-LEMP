@@ -11,6 +11,7 @@ On Ubuntu 22.04, MariaDB 10.6 is configured by default to use **unix_socket** au
 ## What Was Happening
 
 Your provision.sh script was:
+
 1. Running with `sudo` ✓ (script has root privileges)
 2. BUT calling `mysql` commands without considering unix_socket ✗
 3. `mysql -e "SELECT plugin..."` failed silently
@@ -22,6 +23,7 @@ Your provision.sh script was:
 ## The Fix
 
 Updated provision.sh to use `MYSQL_ROOT_CMD` variable that:
+
 - Uses `mysql` when script runs as root (EUID=0)
 - Uses `sudo mysql` when script runs as non-root
 - Properly detects unix_socket authentication
@@ -31,11 +33,13 @@ Updated provision.sh to use `MYSQL_ROOT_CMD` variable that:
 ### Key Changes
 
 **Before:**
+
 ```bash
 mysql -e "SELECT plugin FROM mysql.user..."  # ✗ Fails with unix_socket
 ```
 
 **After:**
+
 ```bash
 MYSQL_ROOT_CMD="mysql"  # We're running as root
 $MYSQL_ROOT_CMD -e "SELECT plugin FROM mysql.user..."  # ✓ Works!
@@ -46,7 +50,7 @@ $MYSQL_ROOT_CMD -e "SELECT plugin FROM mysql.user..."  # ✓ Works!
 ### On Your VM
 
 ```bash
-cd ~/retasite
+cd ~/autowp-lemp
 git pull --ff-only origin main
 
 # Verify the fix is present
@@ -60,12 +64,13 @@ sudo ./provision.sh
 
 ## Expected Output After Fix
 
-### You should see:
-```
+### You should see
+
+```text
 [INFO] Securing MariaDB...
 [INFO] Configuring root user authentication...
 [INFO] Root uses unix_socket authentication; creating a passworded admin user.
-[INFO] Creating local admin user: admin_retaguide_user
+[INFO] Creating local admin user: admin_autowp_user
 [INFO] ✓ Created admin user successfully
 [INFO] Creating WordPress database...
 [INFO] Configuring NGINX...
@@ -73,8 +78,9 @@ sudo ./provision.sh
 [INFO] Provisioning complete!
 ```
 
-### You should NOT see:
-```
+### You should NOT see
+
+```text
 ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
 [WARN] Could not create admin user either - database creation may fail
 ```
@@ -89,6 +95,7 @@ sudo mysql -e "SELECT User,Host,plugin FROM mysql.user WHERE User='root';"
 ```
 
 **Typical Ubuntu 22.04 output:**
+
 ```
 User    Host       plugin
 root    localhost  unix_socket
@@ -106,15 +113,16 @@ sudo mysql
 mysql
 
 # ✓ Works - using the admin user created by provision.sh
-mysql -uadmin_retaguide_user -pYourPassword
+mysql -uadmin_autowp_user -pYourPassword
 
 # ✓ Works - using the WordPress user
-mysql -uretaguide_user -pYourPassword
+mysql -uautowp_user -pYourPassword
 ```
 
 ## Why unix_socket is Actually Good
 
 It's more secure because:
+
 - Root can only be accessed from the system itself (no remote root access)
 - No password to guess or brute force for root
 - Requires local system root privileges to access MySQL root
@@ -122,14 +130,14 @@ It's more secure because:
 
 ## After Provisioning
 
-The script creates an `admin_retaguide_user` which uses password authentication, so you can:
+The script creates an `admin_autowp_user` which uses password authentication, so you can:
 
 ```bash
 # Connect as admin user (has full privileges)
-mysql -uadmin_retaguide_user -p
+mysql -uadmin_autowp_user -p
 
-# Or connect as WordPress user (limited to retaguide_wp database)
-mysql -uretaguide_user -p retaguide_wp
+# Or connect as WordPress user (limited to autowp_wp database)
+mysql -uautowp_user -p autowp_wp
 ```
 
 ## Verifying the Fix Worked
@@ -141,15 +149,15 @@ After running the updated provision.sh:
 sudo mysql -e "SELECT User,Host,plugin FROM mysql.user WHERE User LIKE 'admin%';"
 
 # Expected:
-# admin_retaguide_user    localhost    mysql_native_password
+# admin_autowp_user    localhost    mysql_native_password
 
 # 2. Test admin user connection
-mysql -uadmin_retaguide_user -p<your-db-password> -e "SHOW DATABASES;"
+mysql -uadmin_autowp_user -p<your-db-password> -e "SHOW DATABASES;"
 
-# Should show retaguide_wp database
+# Should show autowp_wp database
 
 # 3. Test WordPress user connection
-mysql -uretaguide_user -p<your-db-password> -e "USE retaguide_wp; SHOW TABLES;"
+mysql -uautowp_user -p<your-db-password> -e "USE autowp_wp; SHOW TABLES;"
 
 # Should connect successfully (may be empty if WordPress not installed yet)
 ```
@@ -170,10 +178,10 @@ sudo mysql -e "SELECT 1;"
 # Should work and return: 1
 
 # If that works, manually create the admin user:
-sudo mysql -e "CREATE USER 'admin_retaguide_user'@'localhost' IDENTIFIED BY 'YourPassword'; GRANT ALL PRIVILEGES ON *.* TO 'admin_retaguide_user'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+sudo mysql -e "CREATE USER 'admin_autowp_user'@'localhost' IDENTIFIED BY 'YourPassword'; GRANT ALL PRIVILEGES ON *.* TO 'admin_autowp_user'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;"
 
 # Test it:
-mysql -uadmin_retaguide_user -pYourPassword -e "SHOW DATABASES;"
+mysql -uadmin_autowp_user -pYourPassword -e "SHOW DATABASES;"
 ```
 
 ### Want to Change Root to Use Password Instead?

@@ -1,7 +1,7 @@
 {
-  "name": "retaguide",
+  "name": "autowp-theme",
   "version": "1.0.0",
-  "description": "RetaGuide WordPress theme assets",
+  "description": "AutoWP WordPress theme assets",
   "scripts": {
     "build": "echo 'No build process configured yet'",
     "watch": "echo 'No watch process configured yet'",
@@ -12,7 +12,7 @@
     "theme",
     "block-theme"
   ],
-  "author": "RetaGuide Team",
+  "author": "AutoWP Team",
   "license": "GPL-2.0-or-later",
   "devDependencies": {}
 }
